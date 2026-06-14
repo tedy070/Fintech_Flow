@@ -219,7 +219,7 @@
   /* ── JADWAL ── */
   .filter-jadwal { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
   .filter-jadwal::-webkit-scrollbar { display:none; }
-  .day-chip { min-width:56px; flex-shrink:0; padding:10px 6px 8px; border-radius:14px; background:var(--card2); border:1.5px solid transparent; cursor:pointer; text-align:center; font-family:inherit; transition:all .2s; }
+  .day-chip { min-width:58px; flex-shrink:0; padding:10px 6px 6px; border-radius:14px; background:var(--card2); border:1.5px solid transparent; cursor:pointer; text-align:center; font-family:inherit; transition:all .2s; }
   .day-chip.active { background:linear-gradient(135deg,#16a34a,#0d9488); border-color:transparent; color:white; box-shadow:0 4px 14px rgba(22,163,74,0.35); }
   .day-chip.has-sched { border-color:var(--green-2); }
   .day-chip .day-name { font-size:10px; font-weight:700; color:inherit; letter-spacing:0.5px; text-transform:uppercase; }
@@ -246,7 +246,65 @@
   .cat-chip { padding:8px 14px; border-radius:20px; background:var(--card2); border:1.5px solid var(--border); font-size:12.5px; font-weight:600; cursor:pointer; color:var(--sub); transition:all .18s; font-family:inherit; }
   .cat-chip.active { border-color:var(--green); color:var(--green); background:var(--green-pale); font-weight:700; }
 
-  /* ── JADWAL SUMMARY ── */
+  /* ── CATEGORY GRID PICKER ── */
+  .cat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+  .cat-grid-item {
+    background:var(--card); border-radius:var(--radius-sm); padding:14px 10px 12px;
+    border:1.5px solid var(--border); cursor:pointer; text-align:center;
+    transition:all .2s; font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:8px;
+    box-shadow:var(--sh1);
+  }
+  .cat-grid-item:hover { border-color:var(--border2); transform:translateY(-1px); }
+  .cat-grid-item.active { border-color:var(--blue); background:#f0f7ff; box-shadow:0 4px 14px rgba(59,130,246,0.15); }
+  .cat-grid-item.active .cat-grid-name { color:#2563eb; font-weight:800; }
+  .cat-grid-icon-wrap { width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; transition:all .2s; position:relative; }
+  .cat-grid-item.active .cat-grid-icon-wrap { box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+  .cat-grid-check { position:absolute; top:-4px; right:-4px; width:18px; height:18px; background:#2563eb; border-radius:50%; display:flex; align-items:center; justify-content:center; display:none; }
+  .cat-grid-item.active .cat-grid-check { display:flex; }
+  .cat-grid-icon-wrap svg { width:24px; height:24px; }
+  .cat-grid-name { font-size:13px; font-weight:700; color:var(--head); letter-spacing:-0.1px; }
+  .cat-grid-sub { font-size:10px; font-weight:600; color:var(--muted); letter-spacing:0.4px; text-transform:uppercase; margin-top:-4px; }
+  .cat-grid-item.active .cat-grid-sub { color:#60a5fa; }
+
+  /* ── CATEGORY SELECTOR BUTTON ── */
+  .cat-select-btn {
+    width:100%; padding:13px 16px; border:1.5px solid var(--border); background:var(--card2);
+    border-radius:var(--radius-xs); font-size:14px; color:var(--sub); outline:none;
+    font-family:inherit; margin-bottom:14px; cursor:pointer; transition:all .2s; font-weight:600;
+    display:flex; align-items:center; gap:10px; text-align:left;
+  }
+  .cat-select-btn:active { transform:scale(.98); }
+  .cat-select-btn.has-value { border-color:var(--green); color:var(--green); background:var(--green-pale); font-weight:700; }
+  .cat-select-btn .cat-sel-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .cat-select-btn .cat-sel-icon svg { width:18px; height:18px; }
+  .cat-select-btn .cat-sel-text { flex:1; }
+  .cat-select-btn .cat-sel-arrow { margin-left:auto; flex-shrink:0; opacity:0.45; }
+
+  /* ── CATEGORY POPUP MODAL ── */
+  .cat-modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:500; align-items:flex-end; justify-content:center; backdrop-filter:blur(6px); }
+  .cat-modal-overlay.open { display:flex; }
+  .cat-modal-sheet { background:var(--card); border-radius:24px 24px 0 0; padding:20px 20px 36px; width:100%; max-width:430px; animation:slideUp .28s cubic-bezier(.32,0,.67,0); max-height:82vh; display:flex; flex-direction:column; }
+  .cat-modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-shrink:0; }
+  .cat-modal-title { font-size:18px; font-weight:800; color:var(--head); }
+  .cat-modal-close { width:32px; height:32px; border-radius:10px; background:var(--card2); border:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .cat-modal-close svg { width:14px; height:14px; stroke:var(--body); stroke-width:2.5; }
+  .cat-modal-body { overflow-y:auto; flex:1; padding-bottom:4px; }
+  .cat-popup-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .cat-popup-item {
+    background:var(--card2); border-radius:14px; padding:14px 8px 12px; border:1.5px solid var(--border);
+    cursor:pointer; text-align:center; transition:all .18s; font-family:inherit;
+    display:flex; flex-direction:column; align-items:center; gap:7px; position:relative;
+  }
+  .cat-popup-item:active { transform:scale(.95); }
+  .cat-popup-item.active { border-color:var(--green); background:var(--green-pale); }
+  .cat-popup-item.active .cat-popup-name { color:var(--green); font-weight:800; }
+  .cat-popup-icon { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; }
+  .cat-popup-icon svg { width:22px; height:22px; }
+  .cat-popup-name { font-size:11.5px; font-weight:700; color:var(--head); line-height:1.3; }
+  .cat-popup-sub { font-size:9px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.4px; }
+  .cat-popup-check { position:absolute; top:6px; right:6px; width:18px; height:18px; background:var(--green); border-radius:50%; display:none; align-items:center; justify-content:center; }
+  .cat-popup-item.active .cat-popup-check { display:flex; }
+
   .jadwal-summary { display:flex; gap:10px; margin-bottom:0; }
   .jadwal-summary-item { flex:1; background:var(--card); border-radius:var(--radius-sm); padding:12px 10px; border:1px solid var(--border); text-align:center; box-shadow:var(--sh1); }
   .jadwal-summary-val { font-size:20px; font-weight:900; color:var(--green); letter-spacing:-0.5px; }
@@ -394,7 +452,7 @@
   </div>
 
   <!-- NOTIFICATION PANEL (dropdown) -->
-  <div id="notif-panel" style="display:none;position:fixed;top:57px;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);z-index:250;border-bottom:1px solid var(--gray-border);box-shadow:var(--shadow-md);max-height:65vh;overflow-y:auto;">
+  <div id="notif-panel" style="display:none;position:fixed;top:57px;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);z-index:250;border-bottom:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.18);max-height:65vh;overflow-y:auto;border-radius:0 0 20px 20px;">
     <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-size:15px;font-weight:800;color:var(--dark);">Notifikasi</span>
       <button onclick="markAllRead()" style="font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-pale);border:none;cursor:pointer;padding:6px 12px;border-radius:7px;font-family:inherit;">✓ Dibaca Semua</button>
@@ -668,16 +726,15 @@
       <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
       <input class="form-input input-has-icon" id="txn-name" type="text" placeholder="Cth: Makan Siang, Gaji Bulanan...">
     </div>
-    <div class="form-row">
-      <div>
-        <label class="form-label">KATEGORI</label>
-        <select class="form-select" id="txn-cat"><option value="">Pilih Kategori</option></select>
-      </div>
-      <div>
-        <label class="form-label">TANGGAL</label>
-        <input class="form-input" id="txn-date" type="date" style="margin-bottom:14px;">
-      </div>
-    </div>
+    <label class="form-label">TANGGAL</label>
+    <input class="form-input" id="txn-date" type="date" style="margin-bottom:14px;">
+    <label class="form-label">KATEGORI</label>
+    <input type="hidden" id="txn-cat" value="">
+    <button type="button" class="cat-select-btn" id="txn-cat-select-btn" onclick="openCatModal('txn')">
+      <span class="cat-sel-icon" id="txn-cat-icon-wrap" style="background:#f1f5f9;display:none;"></span>
+      <span class="cat-sel-text" id="txn-cat-select-label">Pilih Kategori...</span>
+      <svg class="cat-sel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
     <button class="btn-primary" onclick="saveTxn()">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       SIMPAN TRANSAKSI
@@ -713,18 +770,11 @@
       <input class="form-input input-has-icon" id="sched-desc" type="text" placeholder="Catatan singkat aktivitas...">
     </div>
     <label class="form-label">KATEGORI AKTIVITAS</label>
-    <div class="cat-chips" id="sched-cat-chips">
-      <div class="cat-chip active" onclick="selectSchedCat(this)">Work</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Personal</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Meeting</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Focus Time</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Liburan</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Olahraga</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Kesehatan</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Belajar</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Belanja</div>
-      <div class="cat-chip" onclick="selectSchedCat(this)">Sosial</div>
-    </div>
+    <button type="button" class="cat-select-btn" id="sched-cat-select-btn" onclick="openCatModal('sched')">
+      <span class="cat-sel-icon" id="sched-cat-icon-wrap" style="background:#f1f5f9;display:none;"></span>
+      <span class="cat-sel-text" id="sched-cat-select-label">Pilih Kategori...</span>
+      <svg class="cat-sel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
     <button class="btn-primary" onclick="saveSchedule()">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       SIMPAN JADWAL
@@ -998,6 +1048,21 @@
       <button class="pin-key" style="visibility:hidden;"></button>
       <button class="pin-key" onclick="modalPinInput('0')">0</button>
       <button class="pin-key del" onclick="modalPinDelete()">⌫</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: CATEGORY PICKER POPUP -->
+<div class="cat-modal-overlay" id="cat-modal-overlay">
+  <div class="cat-modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="cat-modal-header">
+      <span class="cat-modal-title" id="cat-modal-title">Pilih Kategori</span>
+      <button class="cat-modal-close" onclick="closeCatModal()"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="cat-modal-body">
+      <div class="cat-popup-grid" id="cat-popup-grid"></div>
     </div>
   </div>
 </div>
@@ -1378,28 +1443,61 @@ function renderRekapContent() {
 }
 
 // ===================== JADWAL =====================
+// Infinite calendar: renders 180 days back + 365 days forward from today (scrollable)
+const CAL_DAYS_FORWARD = 730; // 2 years forward
+
+function buildCalendarDates(schedDates, todayStr) {
+  const today = new Date(todayStr + 'T00:00:00');
+  const dates = [];
+
+  // PAST: only dates that have schedules (sorted ascending)
+  const pastSchedDates = [...schedDates].filter(d => d < todayStr).sort();
+  dates.push(...pastSchedDates);
+
+  // TODAY + FUTURE: every day for 730 days forward
+  for(let i = 0; i <= CAL_DAYS_FORWARD; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    dates.push(d.toISOString().slice(0,10));
+  }
+
+  // Deduplicate (in case a future sched date was already added) while preserving order
+  return [...new Set(dates)];
+}
+
 function renderJadwal(centerDate) {
-  // Show notif permission banner if needed
   const banner=document.getElementById('notif-banner');
   if('Notification' in window && Notification.permission==='default') banner.style.display='flex';
   else banner.style.display='none';
 
-  const today = centerDate?new Date(centerDate+'T00:00:00'):new Date();
-  const filter=document.getElementById('day-filter');
-  const days=[];
-  for(let i=-1;i<6;i++){const d=new Date(today);d.setDate(today.getDate()+i);days.push(d);}
-  const schedDates=new Set(schedules.map(s=>s.date));
-  filter.innerHTML=days.map((d,i)=>{
-    const ds=d.toISOString().slice(0,10);
-    const isActive=selectedDay?ds===selectedDay:i===1;
-    if(isActive&&!selectedDay) selectedDay=ds;
-    const hasSched=schedDates.has(ds);
+  const todayStr = new Date().toISOString().slice(0,10);
+  const schedDates = new Set(schedules.map(s=>s.date));
+  const allDates = buildCalendarDates(schedDates, todayStr);
+
+  if(!selectedDay) selectedDay = centerDate || todayStr;
+  // If selectedDay not in list (e.g. a past day with no sched), snap to today
+  if(!allDates.includes(selectedDay)) selectedDay = todayStr;
+
+  const filter = document.getElementById('day-filter');
+  filter.innerHTML = allDates.map(ds => {
+    const d = new Date(ds + 'T00:00:00');
+    const isActive = ds === selectedDay;
+    const hasSched = schedDates.has(ds);
+    const isToday = ds === todayStr;
     return `<button class="day-chip ${isActive?'active':''} ${hasSched&&!isActive?'has-sched':''}" onclick="selectDay('${ds}',this)">
-      <div class="day-name">${DAY_NAMES[d.getDay()]}</div>
+      <div class="day-name" style="font-size:${isToday?'8px':'10px'};${isToday&&!isActive?'color:var(--green);':''}">${isToday?'HARI INI':DAY_NAMES[d.getDay()]}</div>
       <div class="day-num">${d.getDate()}</div>
-      ${hasSched?'<div class="day-dot"></div>':'<div style="height:8px;"></div>'}
+      <div style="font-size:7px;font-weight:700;letter-spacing:0.3px;margin-top:1px;color:${isActive?'rgba(255,255,255,0.7)':'var(--muted)'};">${MONTHS_SHORT[d.getMonth()]}</div>
+      ${hasSched?'<div class="day-dot"></div>':'<div style="height:5px;"></div>'}
     </button>`;
   }).join('');
+
+  // Scroll to selected/today chip
+  setTimeout(()=>{
+    const activeChip = filter.querySelector('.day-chip.active');
+    if(activeChip) activeChip.scrollIntoView({behavior:'instant',block:'nearest',inline:'center'});
+  }, 20);
+
   renderScheduleList();
 }
 
@@ -1420,7 +1518,7 @@ function toggleDatePicker() {
 function jumpToDate(ds) {
   if(!ds) return;
   selectedDay=ds;
-  renderJadwal(ds);
+  renderJadwal(ds); // will add ds to calendar if needed
   document.getElementById('date-picker-wrap').style.display='none';
   document.getElementById('filter-arrow').style.transform='';
 }
@@ -1497,6 +1595,14 @@ function openModal(type) {
     setTxnType('expense');
     document.getElementById('modal-txn').classList.add('open');
   } else if(currentPage==='jadwal') {
+    selectedSchedCat='Work';
+    // Reset schedule cat selector button
+    const scBtn = document.getElementById('sched-cat-select-btn');
+    const scLbl = document.getElementById('sched-cat-select-label');
+    if(scLbl) scLbl.textContent = 'Pilih Kategori...';
+    if(scBtn) scBtn.classList.remove('has-value');
+    const scIcon = document.getElementById('sched-cat-icon-wrap');
+    if(scIcon) { scIcon.style.display='none'; scIcon.innerHTML=''; }
     document.getElementById('modal-jadwal').classList.add('open');
   }
 }
@@ -1505,14 +1611,147 @@ document.querySelectorAll('.modal-overlay').forEach(el=>{
   el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 });
 
+// ===================== CATEGORY GRID DATA =====================
+const TXN_CAT_EXPENSE = [
+  {name:'Konsumsi',   sub:'DINING & GROCERY', bg:'#fff4e6', stroke:'#f59e0b', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`},
+  {name:'Transportasi',sub:'COMMUTE',          bg:'#e8f0ff', stroke:'#3b82f6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`},
+  {name:'Rumah Tangga',sub:'BILLS & HOUSING',  bg:'#f0f4ff', stroke:'#6366f1', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},
+  {name:'Hiburan',    sub:'ENTERTAINMENT',     bg:'#fef9e6', stroke:'#eab308', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>`},
+  {name:'Belanja',    sub:'PERSONAL CARE',     bg:'#ffe6f0', stroke:'#ec4899', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`},
+  {name:'Kesehatan',  sub:'GYM & MEDS',        bg:'#e6fff4', stroke:'#10b981', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},
+  {name:'Pendidikan', sub:'SUBSCRIPTIONS',     bg:'#ede9fe', stroke:'#8b5cf6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`},
+  {name:'Liburan',    sub:'ESCAPES',           bg:'#e6f4ff', stroke:'#0ea5e9', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.62 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-2.93-8.2A2 2 0 0 1 4.68 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`},
+  {name:'Olahraga',   sub:'FITNESS',           bg:'#fff0e6', stroke:'#f97316', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg>`},
+  {name:'Tagihan & Utilitas',sub:'UTILITIES',  bg:'#fef2e6', stroke:'#d97706', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`},
+  {name:'Lainnya',    sub:'OTHER',             bg:'#f3f4f6', stroke:'#6b7280', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`},
+];
+const TXN_CAT_INCOME = [
+  {name:'Gaji',       sub:'MONTHLY SALARY',   bg:'#dcfce7', stroke:'#16a34a', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>`},
+  {name:'Freelance',  sub:'SIDE INCOME',      bg:'#f5f3ff', stroke:'#8b5cf6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`},
+  {name:'Investasi',  sub:'RETURNS',          bg:'#ecfeff', stroke:'#06b6d4', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`},
+  {name:'Bonus',      sub:'REWARDS',          bg:'#fefce8', stroke:'#ca8a04', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`},
+  {name:'Bisnis',     sub:'BUSINESS',         bg:'#eff6ff', stroke:'#3b82f6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`},
+  {name:'Lainnya',    sub:'OTHER',            bg:'#f3f4f6', stroke:'#6b7280', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`},
+];
+const SCHED_CATS = [
+  {name:'Work',       sub:'PEKERJAAN',        bg:'#e8f5ee', stroke:'#1a7a4a', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`},
+  {name:'Personal',   sub:'PRIBADI',          bg:'#eff6ff', stroke:'#3b82f6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},
+  {name:'Meeting',    sub:'PERTEMUAN',        bg:'#f5f3ff', stroke:'#8b5cf6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`},
+  {name:'Focus Time', sub:'FOKUS',            bg:'#fffbeb', stroke:'#f59e0b', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`},
+  {name:'Liburan',    sub:'VACATION',         bg:'#fef3c7', stroke:'#d97706', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.62 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-2.93-8.2A2 2 0 0 1 4.68 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`},
+  {name:'Olahraga',   sub:'FITNESS',          bg:'#fce7f3', stroke:'#db2777', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg>`},
+  {name:'Kesehatan',  sub:'GYM & MEDS',       bg:'#eff6ff', stroke:'#3b82f6', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},
+  {name:'Belajar',    sub:'EDUCATION',        bg:'#f5f3ff', stroke:'#7c3aed', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`},
+  {name:'Belanja',    sub:'SHOPPING',         bg:'#fef9c3', stroke:'#ca8a04', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`},
+  {name:'Sosial',     sub:'SOCIAL',           bg:'#ecfdf5', stroke:'#059669', svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`},
+];
+
+// ─── CATEGORY POPUP MODAL ───
+let _catModalContext = null; // 'txn' or 'sched'
+let _catModalCats = [];
+
+function openCatModal(context) {
+  _catModalContext = context;
+  const isTxn = context === 'txn';
+  const cats = isTxn ? (txnType==='income' ? TXN_CAT_INCOME : TXN_CAT_EXPENSE) : SCHED_CATS;
+  _catModalCats = cats;
+  const currentVal = isTxn ? document.getElementById('txn-cat').value : selectedSchedCat;
+  document.getElementById('cat-modal-title').textContent = isTxn ? 'Pilih Kategori Transaksi' : 'Pilih Kategori Aktivitas';
+  const grid = document.getElementById('cat-popup-grid');
+  grid.innerHTML = cats.map(c => {
+    const isActive = c.name === currentVal;
+    return `<div class="cat-popup-item ${isActive?'active':''}" onclick="selectCatFromModal('${c.name.replace(/'/g,"\'")}','${c.bg}','${c.stroke}')">
+      <div class="cat-popup-icon" style="background:${c.bg};">${c.svg.replace('stroke="currentColor"',`stroke="${c.stroke}"`)}</div>
+      <div class="cat-popup-name">${c.name}</div>
+      <div class="cat-popup-sub">${c.sub}</div>
+      <div class="cat-popup-check"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>`;
+  }).join('');
+  document.getElementById('cat-modal-overlay').classList.add('open');
+}
+
+function closeCatModal() {
+  document.getElementById('cat-modal-overlay').classList.remove('open');
+}
+
+function selectCatFromModal(name, bg, stroke) {
+  closeCatModal();
+  const cat = _catModalCats.find(c=>c.name===name);
+  if(!cat) return;
+  if(_catModalContext === 'txn') {
+    document.getElementById('txn-cat').value = name;
+    const lbl = document.getElementById('txn-cat-select-label');
+    if(lbl) lbl.textContent = name;
+    const btn = document.getElementById('txn-cat-select-btn');
+    if(btn) btn.classList.add('has-value');
+    // Show icon in button
+    const iconWrap = document.getElementById('txn-cat-icon-wrap');
+    if(iconWrap) {
+      iconWrap.style.background = cat.bg;
+      iconWrap.style.display = 'flex';
+      iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/, 'width="18"').replace(/height="[^"]*"/, 'height="18"');
+    }
+  } else {
+    selectedSchedCat = name;
+    const lbl = document.getElementById('sched-cat-select-label');
+    if(lbl) lbl.textContent = name;
+    const btn = document.getElementById('sched-cat-select-btn');
+    if(btn) btn.classList.add('has-value');
+    const iconWrap = document.getElementById('sched-cat-icon-wrap');
+    if(iconWrap) {
+      iconWrap.style.background = cat.bg;
+      iconWrap.style.display = 'flex';
+      iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/, 'width="18"').replace(/height="[^"]*"/, 'height="18"');
+    }
+  }
+}
+
+// Close cat modal when clicking overlay background
+document.addEventListener('DOMContentLoaded', ()=>{
+  const overlay = document.getElementById('cat-modal-overlay');
+  if(overlay) overlay.addEventListener('click', function(e){ if(e.target===this) closeCatModal(); });
+});
+
+function buildCatGrid(containerId, cats, selectedVal, onSelectFn) {
+  const grid = document.getElementById(containerId);
+  if(!grid) return;
+  grid._onSelectFn = onSelectFn;
+  grid.innerHTML = cats.map(c => {
+    const isActive = c.name === selectedVal;
+    return `<div class="cat-grid-item ${isActive?'active':''}" data-cat="${c.name.replace(/"/g,'&quot;')}">
+      <div class="cat-grid-icon-wrap" style="background:${c.bg};">
+        ${c.svg.replace('stroke="currentColor"',`stroke="${c.stroke}"`)}
+        <div class="cat-grid-check"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="cat-grid-name">${c.name}</div>
+      <div class="cat-grid-sub">${c.sub}</div>
+    </div>`;
+  }).join('');
+  grid.onclick = function(e) {
+    const item = e.target.closest('.cat-grid-item');
+    if(!item) return;
+    grid._onSelectFn(item, item.dataset.cat);
+  };
+}
+
+function selectTxnCatGrid(el, name) {
+  document.querySelectorAll('#txn-cat-grid .cat-grid-item').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('txn-cat').value = name;
+}
+
 function setTxnType(t) {
   txnType=t;
   document.getElementById('btn-expense').className='toggle-btn'+(t==='expense'?' active-expense':'');
   document.getElementById('btn-income').className='toggle-btn'+(t==='income'?' active-income':'');
-  const cat=document.getElementById('txn-cat');
-  cat.innerHTML=t==='income'
-    ?'<option value="">Pilih Kategori</option><option>Gaji</option><option>Freelance</option><option>Investasi</option><option>Bonus</option><option>Bisnis</option><option>Dividen</option><option>Hadiah</option><option>Sewa</option><option>Pengembalian Dana</option><option>Lainnya</option>'
-    :'<option value="">Pilih Kategori</option><option>Transportasi</option><option>Konsumsi</option><option>Hiburan</option><option>Kesehatan</option><option>Belanja</option><option>Pendidikan</option><option>Tagihan & Utilitas</option><option>Komunikasi</option><option>Rumah Tangga</option><option>Olahraga</option><option>Kecantikan & Perawatan</option><option>Donasi</option><option>Asuransi</option><option>Liburan</option><option>Lainnya</option>';
+  document.getElementById('txn-cat').value='';
+  // Reset category selector button
+  const btn = document.getElementById('txn-cat-select-btn');
+  const lbl = document.getElementById('txn-cat-select-label');
+  if(lbl) lbl.textContent = 'Pilih Kategori...';
+  if(btn) btn.classList.remove('has-value');
+  const iconWrap = document.getElementById('txn-cat-icon-wrap');
+  if(iconWrap) { iconWrap.style.display='none'; iconWrap.innerHTML=''; }
 }
 
 function saveTxn() {
@@ -1533,9 +1772,24 @@ function editTxn(id) {
   setTxnType(t.type);
   document.getElementById('txn-amount').value=t.amount.toLocaleString('id-ID').replace(/,/g,'.');
   document.getElementById('txn-name').value=t.name;
-  document.getElementById('txn-cat').value=t.cat;
   document.getElementById('txn-date').value=t.date;
   deleteTxn(id);
+  // Restore category in selector button
+  if(t.cat) {
+    document.getElementById('txn-cat').value=t.cat;
+    const cats = t.type==='income' ? TXN_CAT_INCOME : TXN_CAT_EXPENSE;
+    const cat = cats.find(c=>c.name===t.cat);
+    const lbl = document.getElementById('txn-cat-select-label');
+    if(lbl) lbl.textContent = t.cat;
+    const btn = document.getElementById('txn-cat-select-btn');
+    if(btn) btn.classList.add('has-value');
+    const iconWrap = document.getElementById('txn-cat-icon-wrap');
+    if(iconWrap && cat) {
+      iconWrap.style.background = cat.bg;
+      iconWrap.style.display = 'flex';
+      iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/, 'width="18"').replace(/height="[^"]*"/, 'height="18"');
+    }
+  }
   document.getElementById('modal-txn').classList.add('open');
 }
 
@@ -1548,10 +1802,24 @@ function editSched(id) {
   document.getElementById('sched-loc').value=s.loc||'';
   document.getElementById('sched-desc').value=s.desc||'';
   selectedSchedCat=s.cat;
-  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.toggle('active',c.textContent.trim()===s.cat));
+  // Restore in selector button
+  const lbl = document.getElementById('sched-cat-select-label');
+  if(lbl) lbl.textContent = s.cat || 'Pilih Kategori...';
+  const btn = document.getElementById('sched-cat-select-btn');
+  if(btn) { if(s.cat) btn.classList.add('has-value'); else btn.classList.remove('has-value'); }
+  const iconWrap = document.getElementById('sched-cat-icon-wrap');
+  const cat = SCHED_CATS.find(c=>c.name===s.cat);
+  if(iconWrap && cat) {
+    iconWrap.style.background = cat.bg;
+    iconWrap.style.display = 'flex';
+    iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/, 'width="18"').replace(/height="[^"]*"/, 'height="18"');
+  }
   deleteSched(id); document.getElementById('modal-jadwal').classList.add('open');
 }
-function selectSchedCat(el){ document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); selectedSchedCat=el.textContent.trim(); }
+function selectSchedCatGrid(el, name) {
+  if(el) el.classList.add('active');
+  selectedSchedCat=name;
+}
 function saveSchedule() {
   const name=document.getElementById('sched-name').value.trim(), start=document.getElementById('sched-start').value;
   const end=document.getElementById('sched-end').value, loc=document.getElementById('sched-loc').value.trim(), desc=document.getElementById('sched-desc').value.trim();
@@ -1559,7 +1827,7 @@ function saveSchedule() {
   const newSched={id:Date.now(),name,start,end,loc,desc,cat:selectedSchedCat,date:selectedDay||new Date().toISOString().slice(0,10)};
   schedules.push(newSched); saveScheds(); closeModal('modal-jadwal');
   ['sched-name','sched-loc','sched-desc'].forEach(id=>document.getElementById(id).value='');
-  renderScheduleList(); showToast('Jadwal berhasil disimpan');
+  renderJadwal(); renderScheduleList(); showToast('Jadwal berhasil disimpan');
   // Schedule browser notification if permission granted
   if(Notification.permission==='granted') {
     const [h,m]=start.split(':'), d=new Date(newSched.date+'T'+start+':00');
