@@ -11,7 +11,11 @@
   *::-webkit-scrollbar { display:none; }
   * { scrollbar-width:none; -ms-overflow-style:none; }
   :root {
-    --green:#16a34a; --green-2:#22c55e; --green-pale:#f0fdf4; --green-teal:#0d9488;
+    /* ─── ACCENT (overridden by theme) ─── */
+    --accent:#16a34a; --accent-2:#22c55e; --accent-pale:#f0fdf4;
+    --accent-teal:#0d9488; --accent-glow:rgba(22,163,74,0.3);
+    /* keep semantic aliases for backwards compat */
+    --green:var(--accent); --green-2:var(--accent-2); --green-pale:var(--accent-pale); --green-teal:var(--accent-teal);
     --red:#ef4444; --red-pale:#fff1f2;
     --blue:#3b82f6; --blue-pale:#eff6ff;
     --amber:#f59e0b; --purple:#8b5cf6;
@@ -40,7 +44,7 @@
   }
   .topbar-logo {
     font-size:16px; font-weight:900; letter-spacing:1.5px;
-    background:linear-gradient(135deg,#16a34a,#0d9488);
+    background:linear-gradient(135deg,var(--accent),var(--accent-teal));
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   }
   .topbar-icon {
@@ -84,9 +88,9 @@
 
   /* ── HERO BUDGET CARD ── */
   .budget-hero {
-    background:linear-gradient(135deg,#16a34a 0%,#0d9488 100%);
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent-teal) 100%);
     border-radius:var(--radius); padding:22px 20px 20px; margin:0 14px 14px;
-    box-shadow:0 8px 32px rgba(22,163,74,0.3); position:relative; overflow:hidden;
+    box-shadow:0 8px 32px var(--accent-glow); position:relative; overflow:hidden;
   }
   .budget-hero::before {
     content:''; position:absolute; top:-40px; right:-40px;
@@ -157,16 +161,62 @@
   .icon-btn.del:hover { background:var(--red-pale); border-color:#fecdd3; }
   .icon-btn.del:hover svg { stroke:var(--red); }
 
+
+  /* ── SWIPE GESTURE ── */
+  .txn-item { position:relative; overflow:hidden; }
+  .swipe-reveal { position:absolute; right:0; top:0; height:100%; display:flex; align-items:stretch; pointer-events:none; }
+  .swipe-action { display:flex; flex-direction:column; align-items:center; justify-content:center; width:64px; font-size:10px; font-weight:700; gap:4px; padding:0 6px; }
+  .swipe-action.edit { background:var(--accent-pale); color:var(--accent); }
+  .swipe-action.del  { background:var(--red-pale);    color:var(--red); }
+  .swipe-action svg  { width:18px; height:18px; }
+  .txn-item-inner { display:flex; align-items:center; gap:12px; width:100%; transition:transform .25s cubic-bezier(.32,0,.67,0); will-change:transform; }
+  .txn-item.swiped-left  .txn-item-inner { transform:translateX(-128px); }
+  .txn-item.swiped-right .txn-item-inner { transform:translateX(0); }
+
+  /* ── STREAK WIDGET ── */
+  .streak-widget { display:flex; gap:10px; margin:0 14px 14px; }
+  .streak-card { flex:1; background:var(--card); border-radius:var(--radius-sm); padding:14px 14px 12px; border:1px solid var(--border); box-shadow:var(--sh1); display:flex; flex-direction:column; gap:4px; position:relative; overflow:hidden; }
+  .streak-card::after { content:''; position:absolute; right:-14px; top:-14px; width:60px; height:60px; border-radius:50%; background:var(--accent-pale); }
+  .streak-icon { font-size:22px; line-height:1; }
+  .streak-val { font-size:22px; font-weight:900; color:var(--head); letter-spacing:-0.5px; line-height:1.1; }
+  .streak-lbl { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; }
+  .streak-sub { font-size:10.5px; color:var(--sub); font-weight:500; margin-top:1px; }
+
+  /* ── THEME PICKER ── */
+  .theme-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .theme-swatch { border-radius:14px; padding:12px 6px 10px; border:2px solid transparent; cursor:pointer; text-align:center; transition:all .18s; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .theme-swatch:active { transform:scale(.94); }
+  .theme-swatch.active { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-pale); }
+  .theme-dot { width:34px; height:34px; border-radius:50%; flex-shrink:0; }
+  .theme-name { font-size:10px; font-weight:700; color:var(--head); }
+
+
+  /* ── CONFIRM DELETE MODAL ── */
+  .confirm-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:600; align-items:center; justify-content:center; backdrop-filter:blur(8px); padding:20px; }
+  .confirm-overlay.open { display:flex; }
+  .confirm-sheet { background:var(--card); border-radius:24px; padding:28px 24px 24px; width:100%; max-width:360px; box-shadow:var(--sh3); animation:scaleIn .22s cubic-bezier(.34,1.56,.64,1); text-align:center; }
+  @keyframes scaleIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+  .confirm-icon { width:56px; height:56px; border-radius:18px; background:var(--red-pale); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+  .confirm-icon svg { width:26px; height:26px; stroke:var(--red); }
+  .confirm-title { font-size:17px; font-weight:800; color:var(--head); margin-bottom:8px; }
+  .confirm-desc { font-size:13px; color:var(--sub); line-height:1.55; margin-bottom:24px; font-weight:500; }
+  .confirm-name { font-weight:700; color:var(--head); }
+  .confirm-btns { display:flex; gap:10px; }
+  .confirm-btn-cancel { flex:1; padding:13px; border-radius:13px; border:1.5px solid var(--border); background:var(--card2); font-size:14px; font-weight:700; color:var(--sub); cursor:pointer; font-family:inherit; transition:all .15s; }
+  .confirm-btn-cancel:active { opacity:.7; }
+  .confirm-btn-del { flex:1; padding:13px; border-radius:13px; border:none; background:var(--red); font-size:14px; font-weight:700; color:white; cursor:pointer; font-family:inherit; transition:all .15s; box-shadow:0 4px 12px rgba(239,68,68,0.3); }
+  .confirm-btn-del:active { transform:scale(.97); }
+
   /* ── FAB ── */
   .fab {
     position:fixed; bottom:82px; right:calc(50% - 210px + 16px);
     width:52px; height:52px; border-radius:16px;
-    background:linear-gradient(135deg,#16a34a,#0d9488);
+    background:linear-gradient(135deg,var(--accent),var(--accent-teal));
     color:white; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; box-shadow:0 6px 24px rgba(22,163,74,0.4); border:none; z-index:150;
+    cursor:pointer; box-shadow:0 6px 24px var(--accent-glow); border:none; z-index:150;
     transition:all .2s cubic-bezier(.34,1.56,.64,1);
   }
-  .fab:hover { transform:scale(1.08) translateY(-2px); box-shadow:0 10px 32px rgba(22,163,74,0.5); }
+  .fab:hover { transform:scale(1.08) translateY(-2px); box-shadow:0 10px 32px var(--accent-glow); }
   .fab svg { width:24px; height:24px; stroke:white; stroke-width:2.5; }
 
   /* ── MODAL ── */
@@ -208,7 +258,7 @@
   .input-icon svg { width:16px; height:16px; stroke:var(--muted); }
   .input-has-icon { padding-left:40px !important; }
   .btn-primary {
-    width:100%; padding:15px; background:linear-gradient(135deg,#16a34a,#0d9488); color:white; border:none;
+    width:100%; padding:15px; background:linear-gradient(135deg,var(--accent),var(--accent-teal)); color:white; border:none;
     border-radius:var(--radius-sm); font-size:14px; font-weight:700; cursor:pointer;
     display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px;
     transition:all .2s; font-family:inherit; letter-spacing:0.3px;
@@ -222,7 +272,7 @@
   .filter-jadwal { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
   .filter-jadwal::-webkit-scrollbar { display:none; }
   .day-chip { min-width:58px; flex-shrink:0; padding:10px 6px 6px; border-radius:14px; background:var(--card2); border:1.5px solid transparent; cursor:pointer; text-align:center; font-family:inherit; transition:all .2s; }
-  .day-chip.active { background:linear-gradient(135deg,#16a34a,#0d9488); border-color:transparent; color:white; box-shadow:0 4px 14px rgba(22,163,74,0.35); }
+  .day-chip.active { background:linear-gradient(135deg,var(--accent),var(--accent-teal)); border-color:transparent; color:white; box-shadow:0 4px 14px rgba(22,163,74,0.35); }
   .day-chip.has-sched { border-color:var(--green-2); }
   .day-chip .day-name { font-size:10px; font-weight:700; color:inherit; letter-spacing:0.5px; text-transform:uppercase; }
   .day-chip .day-num { font-size:20px; font-weight:900; margin-top:3px; color:inherit; letter-spacing:-0.5px; }
@@ -231,7 +281,7 @@
   .timeline { position:relative; padding-left:24px; margin-top:14px; }
   .timeline-line { position:absolute; left:6px; top:14px; bottom:14px; width:2px; background:linear-gradient(to bottom,var(--green),var(--green-teal)); border-radius:2px; opacity:0.3; }
   .timeline-item { position:relative; margin-bottom:14px; }
-  .timeline-dot { position:absolute; left:-21px; top:16px; width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg,#16a34a,#0d9488); border:2px solid var(--card); box-shadow:0 0 0 2px var(--green); }
+  .timeline-dot { position:absolute; left:-21px; top:16px; width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-teal)); border:2px solid var(--card); box-shadow:0 0 0 2px var(--green); }
   .schedule-card { background:var(--card); border-radius:var(--radius-sm); padding:14px; border:1px solid var(--border); box-shadow:var(--sh1); }
   .sched-top { display:flex; gap:12px; align-items:flex-start; }
   .schedule-icon { width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -357,7 +407,7 @@
 
   /* ── NOTIF ── */
   .notif-item { display:flex; gap:11px; padding:13px 12px; border-radius:var(--radius-sm); margin-bottom:6px; align-items:flex-start; background:var(--card2); border:1px solid var(--border); transition:all .15s; }
-  .notif-item.unread { background:var(--green-pale); border-color:#bbf7d0; }
+  .notif-item.unread { background:var(--accent-pale); border-color:var(--accent-2); }
   .notif-icon { width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .notif-body { flex:1; min-width:0; }
   .notif-title { font-size:13px; font-weight:700; color:var(--head); }
@@ -365,8 +415,8 @@
   .notif-time { font-size:10.5px; color:var(--muted); margin-top:4px; font-weight:500; }
 
   /* ── NOTIF BANNER ── */
-  .notif-allow-banner { background:var(--green-pale); border:1.5px solid #bbf7d0; border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
-  .notif-allow-banner p { font-size:12px; color:var(--green); font-weight:600; flex:1; }
+  .notif-allow-banner { background:var(--accent-pale); border:1.5px solid var(--accent-2); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+  .notif-allow-banner p { font-size:12px; color:var(--accent); font-weight:600; flex:1; }
   .notif-allow-btn { padding:8px 13px; background:var(--green); color:white; border:none; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
 
   /* ── EMPTY STATE ── */
@@ -382,7 +432,7 @@
 
   /* ── DARK MODE ── */
   body.dark {
-    --green:#4ade80; --green-2:#22c55e; --green-pale:#052e16; --green-teal:#14b8a6;
+    /* dark accent will be set by applyTheme() */
     --red:#f87171; --red-pale:#2d1515;
     --blue:#60a5fa; --blue-pale:#1e3a5f;
     --bg:#0b0f19; --card:#131c2e; --card2:#1a2540;
@@ -395,7 +445,7 @@
   body.dark .modal-sheet { background:var(--card); }
   body.dark .modal-overlay { background:rgba(0,0,0,0.7); }
   body.dark .topbar-icon { background:var(--card2); border-color:var(--border); }
-  body.dark .notif-item.unread { background:#0a2318; border-color:#14532d; }
+  body.dark .notif-item.unread { background:var(--accent-pale); border-color:var(--accent); }
   body.dark .form-input, body.dark .form-select { background:var(--card2); border-color:var(--border); color:var(--head); }
   body.dark .form-input:focus, body.dark .form-select:focus { background:var(--card); }
   body.dark .toggle-row { background:var(--card2); }
@@ -416,7 +466,7 @@
   .onboard-dot { width:8px;height:8px;border-radius:50%;background:#1e3a5f;transition:all .35s cubic-bezier(.34,1.56,.64,1); }
   .onboard-dot.active { width:28px;border-radius:4px;background:#4ade80; }
   .onboard-bottom { width:100%;max-width:430px;padding:16px 24px 44px;display:flex;flex-direction:column;gap:12px; }
-  .onboard-btn-main { width:100%;padding:17px;background:linear-gradient(135deg,#16a34a,#0d9488);color:white;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(22,163,74,0.4);letter-spacing:0.3px; }
+  .onboard-btn-main { width:100%;padding:17px;background:linear-gradient(135deg,var(--accent),var(--accent-teal));color:white;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(22,163,74,0.4);letter-spacing:0.3px; }
   .onboard-btn-skip { background:none;border:none;color:#475569;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px; }
 
   /* ── PIN ── */
@@ -442,12 +492,12 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h2M10 15h4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h2M10 15h4"/></svg>
     </div>
     <div class="topbar-logo">FINTECH FLOW</div>
     <div style="position:relative;cursor:pointer;" onclick="toggleNotif()" id="notif-btn">
       <div class="topbar-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       </div>
       <div id="notif-badge" style="position:absolute;top:1px;right:1px;min-width:16px;height:16px;background:var(--red);border-radius:50%;border:2px solid white;display:none;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;padding:0 3px;box-sizing:border-box;"></div>
     </div>
@@ -457,7 +507,7 @@
   <div id="notif-panel" style="display:none;position:fixed;top:57px;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);z-index:250;border-bottom:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.18);max-height:65vh;overflow-y:auto;border-radius:0 0 20px 20px;">
     <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-size:15px;font-weight:800;color:var(--dark);">Notifikasi</span>
-      <button onclick="markAllRead()" style="font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-pale);border:none;cursor:pointer;padding:6px 12px;border-radius:7px;font-family:inherit;">✓ Dibaca Semua</button>
+      <button onclick="markAllRead()" style="font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-pale);border:none;cursor:pointer;padding:6px 12px;border-radius:7px;font-family:inherit;">✓ Dibaca Semua</button>
     </div>
     <div style="display:flex;gap:6px;padding:0 14px 10px;flex-wrap:wrap;">
       <button class="filter-pill active" id="nf-all" onclick="setNotifFilter('all',this)">Semua</button>
@@ -499,6 +549,29 @@
           <div class="hero-stat-val" id="disp-batas">Rp 0</div>
           <div class="hero-stat-label">Batas</div>
         </div>
+      </div>
+    </div>
+
+
+    <!-- STREAK WIDGET -->
+    <div class="streak-widget" id="streak-widget">
+      <div class="streak-card">
+        <div class="streak-icon">🔥</div>
+        <div class="streak-val" id="sw-streak">0</div>
+        <div class="streak-lbl">Hari Streak</div>
+        <div class="streak-sub" id="sw-streak-sub">Catat transaksi tiap hari!</div>
+      </div>
+      <div class="streak-card">
+        <div class="streak-icon">📅</div>
+        <div class="streak-val" id="sw-today-count">0</div>
+        <div class="streak-lbl">Transaksi Hari Ini</div>
+        <div class="streak-sub" id="sw-today-sub">total hari ini</div>
+      </div>
+      <div class="streak-card">
+        <div class="streak-icon">📊</div>
+        <div class="streak-val" id="sw-month-count">0</div>
+        <div class="streak-lbl">Bulan Ini</div>
+        <div class="streak-sub" id="sw-month-sub">transaksi bulan ini</div>
       </div>
     </div>
 
@@ -576,16 +649,16 @@
   <div class="page" id="page-jadwal">
     <div class="section-card">
       <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;cursor:pointer;user-select:none;" onclick="toggleDatePicker()" id="filter-header">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         <span style="font-size:15px;font-weight:700;color:#111827;">Filter Jadwal</span>
-        <svg id="filter-arrow" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5" width="16" height="16" style="margin-left:auto;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg id="filter-arrow" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" width="16" height="16" style="margin-left:auto;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div id="date-picker-wrap" style="display:none;margin-bottom:12px;">
         <input type="date" id="jump-date" class="form-input" style="margin-bottom:0;" onchange="jumpToDate(this.value)">
       </div>
       <!-- Notif permission banner -->
       <div id="notif-banner" class="notif-allow-banner" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <p>Aktifkan notifikasi untuk pengingat jadwal otomatis!</p>
         <button class="notif-allow-btn" onclick="requestNotifPermission()">Aktifkan</button>
       </div>
@@ -612,7 +685,7 @@
 
   <!-- PAGE: PROFIL -->
   <div class="page" id="page-profil">
-    <div style="background:linear-gradient(135deg,#1a7a4a,#0d9488);margin:12px 14px;border-radius:20px;padding:24px 20px 20px;box-shadow:0 4px 20px rgba(26,122,74,0.28);">
+    <div style="background:linear-gradient(135deg,var(--accent),var(--accent-teal));margin:12px 14px;border-radius:20px;padding:24px 20px 20px;box-shadow:0 4px 20px var(--accent-glow);">
       <div style="display:flex;align-items:center;gap:16px;">
         <div style="width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,0.25);border:3px solid rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:white;flex-shrink:0;" id="prof-avatar-big">A</div>
         <div style="flex:1;min-width:0;">
@@ -648,7 +721,7 @@
 
     <div class="section-card">
       <div class="section-title">Informasi Akun</div>
-      <div class="prof-info-row"><div class="prof-info-icon" style="background:#e8f5ee;"><svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="prof-info-body"><div class="prof-info-label">Nama Lengkap</div><div class="prof-info-val" id="pi-nama">Ahmad Fauzi</div></div></div>
+      <div class="prof-info-row"><div class="prof-info-icon" style="background:var(--accent-pale);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="prof-info-body"><div class="prof-info-label">Nama Lengkap</div><div class="prof-info-val" id="pi-nama">Ahmad Fauzi</div></div></div>
       <div class="prof-info-row"><div class="prof-info-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="prof-info-body"><div class="prof-info-label">Email</div><div class="prof-info-val" id="pi-email">ahmad.fauzi@email.com</div></div></div>
       <div class="prof-info-row"><div class="prof-info-icon" style="background:#f5f3ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" width="16" height="16"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.06 6.06l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg></div><div class="prof-info-body"><div class="prof-info-label">Nomor HP</div><div class="prof-info-val" id="pi-hp">+62 812-3456-7890</div></div></div>
       <div class="prof-info-row"><div class="prof-info-icon" style="background:#fef3c7;"><svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" width="16" height="16"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="prof-info-body"><div class="prof-info-label">Kota</div><div class="prof-info-val" id="pi-kota">Jakarta, Indonesia</div></div></div>
@@ -657,8 +730,9 @@
 
     <div class="section-card">
       <div class="section-title">Pengaturan</div>
-      <div class="prof-menu-item" onclick="toggleSwitch('sw-notif')"><div class="prof-menu-icon" style="background:#e8f5ee;"><svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Notifikasi</div><div class="prof-menu-sub">Aktifkan pengingat transaksi & jadwal</div></div><div class="sw-track active" id="sw-notif"><div class="sw-thumb"></div></div></div>
+      <div class="prof-menu-item" onclick="toggleSwitch('sw-notif')"><div class="prof-menu-icon" style="background:#e8f5ee;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Notifikasi</div><div class="prof-menu-sub">Aktifkan pengingat transaksi & jadwal</div></div><div class="sw-track active" id="sw-notif"><div class="sw-thumb"></div></div></div>
       <div class="prof-menu-item" onclick="toggleDarkMode()"><div class="prof-menu-icon" style="background:#f5f3ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" width="16" height="16"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Mode Gelap</div><div class="prof-menu-sub">Tampilan tema gelap</div></div><div class="sw-track" id="sw-dark"><div class="sw-thumb"></div></div></div>
+      <div class="prof-menu-item" onclick="openThemeModal()"><div class="prof-menu-icon" style="background:var(--accent-pale);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 2v20"/><path d="M2 12h20"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Tema Warna</div><div class="prof-menu-sub" id="theme-setting-sub">Pilih warna aksen aplikasi</div></div><svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
       <div class="prof-menu-item" onclick="openSetPin()" style="border:none;"><div class="prof-menu-icon" style="background:#ecfdf5;"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label" id="pin-setting-label">Buat PIN</div><div class="prof-menu-sub" id="pin-setting-sub">Keamanan masuk dengan PIN 4 digit</div></div><svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
     </div>
 
@@ -712,7 +786,7 @@
     <div class="modal-handle"></div>
     <div class="modal-header">
       <span class="modal-title">Tambah Transaksi</span>
-      <button class="modal-close" onclick="closeModal('modal-txn')"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="modal-close" onclick="cancelEditTxn()"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="toggle-row">
       <button class="toggle-btn active-expense" id="btn-expense" onclick="setTxnType('expense')">Pengeluaran</button>
@@ -750,7 +824,7 @@
     <div class="modal-handle"></div>
     <div class="modal-header">
       <span class="modal-title">Jadwal Baru</span>
-      <button class="modal-close" onclick="closeModal('modal-jadwal')"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="modal-close" onclick="cancelEditSched()"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <label class="form-label">NAMA AKTIVITAS</label>
     <div class="input-icon-wrap">
@@ -1069,6 +1143,36 @@
   </div>
 </div>
 
+
+<!-- MODAL: THEME PICKER -->
+<div class="modal-overlay" id="modal-theme">
+  <div class="modal-sheet" style="padding-bottom:40px;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="font-size:18px;font-weight:800;color:var(--head);">🎨 Tema Warna</div>
+      <button class="cat-modal-close" onclick="closeModal('modal-theme')"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;font-weight:500;">Pilih warna aksen favorit kamu — seluruh tampilan akan menyesuaikan.</div>
+    <div class="theme-grid" id="theme-grid"></div>
+  </div>
+</div>
+
+
+<!-- MODAL: CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-sheet">
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </div>
+    <div class="confirm-title" id="confirm-title">Hapus Item?</div>
+    <div class="confirm-desc" id="confirm-desc">Tindakan ini tidak bisa dibatalkan.</div>
+    <div class="confirm-btns">
+      <button class="confirm-btn-cancel" onclick="closeConfirm()">Batal</button>
+      <button class="confirm-btn-del" onclick="confirmDeleteExec()">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
   <span id="toast-msg"></span>
@@ -1240,6 +1344,7 @@ function setChartRange(n, el) {
   document.querySelectorAll('[id^="chart-btn-"]').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderChart();
+  renderStreakWidget();
 }
 function openFilterModal() { document.getElementById('modal-filter').classList.add('open'); }
 function resetFilter() {
@@ -1287,7 +1392,7 @@ function renderAnggaran() {
   const heroSub = document.getElementById('hero-sub-txt');
   if(heroSub) heroSub.textContent = batas ? `dari batas ${fmt(batas)}` : 'Belum ada batas anggaran';
   document.getElementById('progress-fill').style.width = pct+'%';
-  document.getElementById('progress-fill').style.background = pct>80?'#ef4444':'#1a7a4a';
+  document.getElementById('progress-fill').style.background = pct>80?'#ef4444':getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
   document.getElementById('progress-pct').textContent   = pct+'% Terpakai';
   document.getElementById('progress-avail').textContent = fmt(avail)+' Tersedia';
 
@@ -1314,20 +1419,34 @@ function renderAnggaran() {
     const sign=t.type==='income'?'+':'-', cls=t.type==='income'?'income':'expense';
     const meta=CAT_ICON_BG[t.cat]||{bg:'#f9fafb',stroke:'#6b7280'};
     const iconSvg=getCatIcon(t.cat).replace('stroke="currentColor"',`stroke="${meta.stroke}"`);
-    return `<div class="txn-item">
-      <div class="txn-icon" style="background:${meta.bg};">${iconSvg}</div>
-      <div class="txn-body"><div class="txn-name">${t.name}</div><div class="txn-meta">${t.cat} · ${t.date}</div></div>
-      <div class="txn-right">
-        <span class="txn-amount ${cls}">${sign} ${fmt(t.amount)}</span>
-        <div class="txn-actions">
-          <button class="icon-btn" onclick="editTxn(${t.id})">${SVG.edit}</button>
-          <button class="icon-btn del" onclick="deleteTxn(${t.id})">${SVG.trash}</button>
+    return `<div class="txn-item" id="txni-${t.id}" ontouchstart="swipeStart(event,'txni-${t.id}')" ontouchend="swipeEnd(event,'txni-${t.id}',${t.id},'txn')">
+      <div class="swipe-reveal">
+        <div class="swipe-action edit" onclick="editTxn(${t.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</div>
+        <div class="swipe-action del" onclick="deleteTxn(${t.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Hapus</div>
+      </div>
+      <div class="txn-item-inner">
+        <div class="txn-icon" style="background:${meta.bg};">${iconSvg}</div>
+        <div class="txn-body"><div class="txn-name">${t.name}</div><div class="txn-meta">${t.cat} · ${t.date}</div></div>
+        <div class="txn-right">
+          <span class="txn-amount ${cls}">${sign} ${fmt(t.amount)}</span>
+          <div class="txn-actions">
+            <button class="icon-btn" onclick="editTxn(${t.id})">${SVG.edit}</button>
+            <button class="icon-btn del" onclick="deleteTxn(${t.id})">${SVG.trash}</button>
+          </div>
         </div>
       </div>
     </div>`;
   }).join('');
 
   renderChart();
+}
+
+
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if(hex.length===3) hex=hex.split('').map(x=>x+x).join('');
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+  return `${r},${g},${b}`;
 }
 
 // ===================== GRAFIK =====================
@@ -1349,7 +1468,7 @@ function renderChart() {
     data:{
       labels,
       datasets:[
-        {label:'Pemasukan',data:masukData,backgroundColor:'rgba(26,122,74,0.75)',borderRadius:5,borderSkipped:false},
+        {label:'Pemasukan',data:masukData,backgroundColor:`rgba(${hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim())},0.75)`,borderRadius:5,borderSkipped:false},
         {label:'Pengeluaran',data:keluarData,backgroundColor:'rgba(239,68,68,0.75)',borderRadius:5,borderSkipped:false}
       ]
     },
@@ -1593,11 +1712,17 @@ function openModal(type) {
   if(type==='goal') { document.getElementById('goal-name').value=''; document.getElementById('goal-target').value=''; document.getElementById('goal-saved').value=''; document.getElementById('goal-deadline').value=''; selectedGoalEmoji='🎯'; document.querySelectorAll('#goal-emoji-row .cat-chip').forEach((c,i)=>c.classList.toggle('active',i===0)); document.getElementById('modal-goal').classList.add('open'); return; }
   if(type==='recur') { document.getElementById('recur-name').value=''; document.getElementById('recur-amount').value=''; document.getElementById('recur-start').value=new Date().toISOString().slice(0,10); setRecurType('expense'); document.getElementById('modal-recur').classList.add('open'); return; }
   if(currentPage==='anggaran'){
+    _editingTxn = null; // ensure fresh add mode
     document.getElementById('txn-date').value=new Date().toISOString().slice(0,10);
     setTxnType('expense');
+    const txnTitle = document.querySelector('#modal-txn .modal-title');
+    if(txnTitle) txnTitle.textContent = 'Tambah Transaksi';
     document.getElementById('modal-txn').classList.add('open');
   } else if(currentPage==='jadwal') {
+    _editingSched = null; // ensure fresh add mode
     selectedSchedCat='Work';
+    const schedTitle = document.querySelector('#modal-jadwal .modal-title');
+    if(schedTitle) schedTitle.textContent = 'Jadwal Baru';
     // Reset schedule cat selector button
     const scBtn = document.getElementById('sched-cat-select-btn');
     const scLbl = document.getElementById('sched-cat-select-label');
@@ -1610,7 +1735,12 @@ function openModal(type) {
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(el=>{
-  el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+  el.addEventListener('click',function(e){
+    if(e.target!==this) return;
+    if(this.id==='modal-txn') { cancelEditTxn(); }
+    else if(this.id==='modal-jadwal') { cancelEditSched(); }
+    else { this.classList.remove('open'); }
+  });
 });
 
 // ===================== CATEGORY GRID DATA =====================
@@ -1763,22 +1893,71 @@ function saveTxn() {
   const date=document.getElementById('txn-date').value;
   if(!amount||!name||!cat||!date){showToast('Lengkapi semua field!',true);return;}
   transactions.push({id:Date.now(),type:txnType,amount,name,cat,date,status:txnType==='income'?'Selesai':'Lunas'});
-  saveTxns(); closeModal('modal-txn');
+  // If editing, remove old record first
+  if(_editingTxn) {
+    transactions = transactions.filter(x=>x.id!==_editingTxn.id);
+    _editingTxn = null;
+  }
+  saveTxns();
+  const title = document.querySelector('#modal-txn .modal-title');
+  if(title) title.textContent = 'Tambah Transaksi';
+  closeModal('modal-txn');
   document.getElementById('txn-amount').value=''; document.getElementById('txn-name').value=''; document.getElementById('txn-cat').value='';
   renderAnggaran(); showToast('Transaksi berhasil disimpan');
 }
 
-function deleteTxn(id){ transactions=transactions.filter(t=>t.id!==id); saveTxns(); renderAnggaran(); showToast('Transaksi dihapus'); }
+// ===================== CONFIRM DELETE =====================
+let _pendingDeleteFn = null;
+
+function confirmDelete(title, desc, deleteFn) {
+  _pendingDeleteFn = deleteFn;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-desc').innerHTML = desc;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function confirmDeleteExec() {
+  closeConfirm();
+  if(_pendingDeleteFn) { _pendingDeleteFn(); _pendingDeleteFn = null; }
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+}
+
+// Close confirm when clicking overlay background
+document.addEventListener('DOMContentLoaded', ()=>{
+  const co = document.getElementById('confirm-overlay');
+  if(co) co.addEventListener('click', function(e){ if(e.target===this) closeConfirm(); });
+});
+
+// ===================== TXN EDIT / DELETE =====================
+// Track transaction being edited (so cancel restores it)
+let _editingTxn = null;
+
+function deleteTxn(id) {
+  const t = transactions.find(x=>x.id===id);
+  if(!t) return;
+  confirmDelete(
+    'Hapus Transaksi?',
+    `Transaksi <span class="confirm-name">"${t.name}"</span> (${t.type==='income'?'+':'−'} ${fmt(t.amount)}) akan dihapus permanen.`,
+    () => {
+      transactions = transactions.filter(x=>x.id!==id);
+      saveTxns(); renderAnggaran(); showToast('Transaksi dihapus');
+    }
+  );
+}
+
 function editTxn(id) {
-  const t=transactions.find(x=>x.id===id); if(!t) return;
+  const t = transactions.find(x=>x.id===id); if(!t) return;
+  _editingTxn = {...t}; // save a copy so cancel can restore
+  // Fill form WITHOUT deleting yet
   setTxnType(t.type);
-  document.getElementById('txn-amount').value=t.amount.toLocaleString('id-ID').replace(/,/g,'.');
-  document.getElementById('txn-name').value=t.name;
-  document.getElementById('txn-date').value=t.date;
-  deleteTxn(id);
-  // Restore category in selector button
+  document.getElementById('txn-amount').value = t.amount.toLocaleString('id-ID').replace(/,/g,'.');
+  document.getElementById('txn-name').value = t.name;
+  document.getElementById('txn-date').value = t.date;
   if(t.cat) {
-    document.getElementById('txn-cat').value=t.cat;
+    document.getElementById('txn-cat').value = t.cat;
     const cats = t.type==='income' ? TXN_CAT_INCOME : TXN_CAT_EXPENSE;
     const cat = cats.find(c=>c.name===t.cat);
     const lbl = document.getElementById('txn-cat-select-label');
@@ -1789,22 +1968,53 @@ function editTxn(id) {
     if(iconWrap && cat) {
       iconWrap.style.background = cat.bg;
       iconWrap.style.display = 'flex';
-      iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/, 'width="18"').replace(/height="[^"]*"/, 'height="18"');
+      iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/,'width="18"').replace(/height="[^"]*"/,'height="18"');
     }
   }
+  // Switch modal title to "Edit"
+  const title = document.querySelector('#modal-txn .modal-title');
+  if(title) title.textContent = 'Edit Transaksi';
   document.getElementById('modal-txn').classList.add('open');
 }
 
-function deleteSched(id){ schedules=schedules.filter(s=>s.id!==id); saveScheds(); renderScheduleList(); showToast('Jadwal dihapus'); }
+function cancelEditTxn() {
+  // If editing, restore original item
+  if(_editingTxn) {
+    // Do nothing — item was never removed from array
+    _editingTxn = null;
+  }
+  // Reset modal title
+  const title = document.querySelector('#modal-txn .modal-title');
+  if(title) title.textContent = 'Tambah Transaksi';
+  closeModal('modal-txn');
+}
+
+// ===================== SCHED EDIT / DELETE =====================
+let _editingSched = null;
+
+function deleteSched(id) {
+  const s = schedules.find(x=>x.id===id);
+  if(!s) return;
+  confirmDelete(
+    'Hapus Jadwal?',
+    `Jadwal <span class="confirm-name">"${s.name}"</span> pada ${s.start}${s.end?' – '+s.end:''} akan dihapus permanen.`,
+    () => {
+      schedules = schedules.filter(x=>x.id!==id);
+      saveScheds(); renderJadwal(); renderScheduleList(); showToast('Jadwal dihapus');
+    }
+  );
+}
+
 function editSched(id) {
-  const s=schedules.find(x=>x.id===id); if(!s) return;
-  document.getElementById('sched-name').value=s.name;
-  document.getElementById('sched-start').value=s.start;
-  document.getElementById('sched-end').value=s.end;
-  document.getElementById('sched-loc').value=s.loc||'';
-  document.getElementById('sched-desc').value=s.desc||'';
-  selectedSchedCat=s.cat;
-  // Restore in selector button
+  const s = schedules.find(x=>x.id===id); if(!s) return;
+  _editingSched = {...s}; // save copy
+  // Fill form WITHOUT deleting
+  document.getElementById('sched-name').value = s.name;
+  document.getElementById('sched-start').value = s.start;
+  document.getElementById('sched-end').value = s.end;
+  document.getElementById('sched-loc').value = s.loc||'';
+  document.getElementById('sched-desc').value = s.desc||'';
+  selectedSchedCat = s.cat;
   const lbl = document.getElementById('sched-cat-select-label');
   if(lbl) lbl.textContent = s.cat || 'Pilih Kategori...';
   const btn = document.getElementById('sched-cat-select-btn');
@@ -1814,9 +2024,19 @@ function editSched(id) {
   if(iconWrap && cat) {
     iconWrap.style.background = cat.bg;
     iconWrap.style.display = 'flex';
-    iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/, 'width="18"').replace(/height="[^"]*"/, 'height="18"');
+    iconWrap.innerHTML = cat.svg.replace('stroke="currentColor"',`stroke="${cat.stroke}"`).replace(/width="[^"]*"/,'width="18"').replace(/height="[^"]*"/,'height="18"');
   }
-  deleteSched(id); document.getElementById('modal-jadwal').classList.add('open');
+  // Switch modal title to "Edit"
+  const title = document.querySelector('#modal-jadwal .modal-title');
+  if(title) title.textContent = 'Edit Jadwal';
+  document.getElementById('modal-jadwal').classList.add('open');
+}
+
+function cancelEditSched() {
+  if(_editingSched) { _editingSched = null; }
+  const title = document.querySelector('#modal-jadwal .modal-title');
+  if(title) title.textContent = 'Jadwal Baru';
+  closeModal('modal-jadwal');
 }
 function selectSchedCatGrid(el, name) {
   if(el) el.classList.add('active');
@@ -1826,8 +2046,17 @@ function saveSchedule() {
   const name=document.getElementById('sched-name').value.trim(), start=document.getElementById('sched-start').value;
   const end=document.getElementById('sched-end').value, loc=document.getElementById('sched-loc').value.trim(), desc=document.getElementById('sched-desc').value.trim();
   if(!name||!start){showToast('Nama aktivitas & waktu wajib diisi!',true);return;}
-  const newSched={id:Date.now(),name,start,end,loc,desc,cat:selectedSchedCat,date:selectedDay||new Date().toISOString().slice(0,10)};
-  schedules.push(newSched); saveScheds(); closeModal('modal-jadwal');
+  // If editing, remove old record first
+  const schedId = _editingSched ? _editingSched.id : Date.now();
+  if(_editingSched) {
+    schedules = schedules.filter(x=>x.id!==_editingSched.id);
+    _editingSched = null;
+  }
+  const newSched={id:schedId,name,start,end,loc,desc,cat:selectedSchedCat,date:selectedDay||new Date().toISOString().slice(0,10)};
+  schedules.push(newSched); saveScheds();
+  const title = document.querySelector('#modal-jadwal .modal-title');
+  if(title) title.textContent = 'Jadwal Baru';
+  closeModal('modal-jadwal');
   ['sched-name','sched-loc','sched-desc'].forEach(id=>document.getElementById(id).value='');
   renderJadwal(); renderScheduleList(); showToast('Jadwal berhasil disimpan');
   // Schedule browser notification if permission granted
@@ -1881,7 +2110,7 @@ function renderNotifPage() {
     return;
   }
   const iconMap={
-    income:{bg:'#e8f5ee',html:`<svg viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" width="20" height="20"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`},
+    income:{bg:'var(--accent-pale)',html:`<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="20" height="20"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`},
     expense:{bg:'#fef2f2',html:`<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg>`},
     sched:{bg:'#eff6ff',html:`<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`},
     warn:{bg:'#fffbeb',html:`<svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`},
@@ -2214,12 +2443,162 @@ function exportCSV() {
   showToast('Data berhasil diekspor ke CSV!');
 }
 
+
+// ===================== SWIPE GESTURE =====================
+let _swipeStartX = 0;
+let _swipeStartY = 0;
+let _swipeActive = null;
+
+function swipeStart(e, elId) {
+  _swipeStartX = e.touches[0].clientX;
+  _swipeStartY = e.touches[0].clientY;
+  _swipeActive = elId;
+}
+
+function swipeEnd(e, elId, itemId, type) {
+  const dx = e.changedTouches[0].clientX - _swipeStartX;
+  const dy = e.changedTouches[0].clientY - _swipeStartY;
+  if(Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 40) { resetSwipe(elId); return; }
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(dx < -40) {
+    // Close any other open swipe
+    document.querySelectorAll('.txn-item.swiped-left').forEach(x=>{ if(x.id!==elId) x.classList.remove('swiped-left'); });
+    el.classList.add('swiped-left');
+    el.classList.remove('swiped-right');
+  } else if(dx > 40) {
+    el.classList.remove('swiped-left');
+    el.classList.add('swiped-right');
+  }
+}
+
+function resetSwipe(elId) {
+  const el = document.getElementById(elId);
+  if(el) { el.classList.remove('swiped-left','swiped-right'); }
+}
+
+// Close swipe when tapping elsewhere
+document.addEventListener('touchstart', function(e) {
+  const open = document.querySelector('.txn-item.swiped-left');
+  if(open && !open.contains(e.target)) open.classList.remove('swiped-left');
+}, {passive:true});
+
+
+// ===================== STREAK WIDGET =====================
+function renderStreakWidget() {
+  const todayStr = new Date().toISOString().slice(0,10);
+  const ym = todayStr.slice(0,7);
+
+  // Today count
+  const todayTxns = transactions.filter(t=>t.date===todayStr);
+  const todayCount = todayTxns.length;
+  const todayTotal = todayTxns.reduce((a,t)=>a + (t.type==='expense'?-t.amount:t.amount), 0);
+
+  // Month count
+  const monthTxns = transactions.filter(t=>t.date.startsWith(ym));
+  const monthCount = monthTxns.length;
+
+  // Streak: consecutive days with at least 1 transaction
+  const txnDates = new Set(transactions.map(t=>t.date));
+  let streak = 0;
+  let d = new Date(todayStr+'T00:00:00');
+  while(txnDates.has(d.toISOString().slice(0,10))) {
+    streak++;
+    d.setDate(d.getDate()-1);
+  }
+
+  const sw = document.getElementById('sw-streak');
+  const ss = document.getElementById('sw-streak-sub');
+  const stc = document.getElementById('sw-today-count');
+  const sts = document.getElementById('sw-today-sub');
+  const smc = document.getElementById('sw-month-count');
+  const sms = document.getElementById('sw-month-sub');
+  if(sw)  sw.textContent  = streak;
+  if(ss)  ss.textContent  = streak > 0 ? `${streak} hari berturut-turut!` : 'Catat transaksi sekarang!';
+  if(stc) stc.textContent = todayCount;
+  if(sts) sts.textContent = todayCount > 0 ? (todayTotal>=0?'+':'')+fmt(Math.abs(todayTotal)) : 'Belum ada hari ini';
+  if(smc) smc.textContent = monthCount;
+  if(sms) sms.textContent = monthCount > 0 ? `${monthCount} transaksi bulan ini` : 'Belum ada transaksi';
+}
+
+
+// ===================== THEME SYSTEM =====================
+const THEMES = [
+  { id:'green',   name:'Hijau',    light:['#16a34a','#22c55e','#f0fdf4','#0d9488','rgba(22,163,74,0.3)'],    dark:['#4ade80','#22c55e','#052e16','#14b8a6','rgba(74,222,128,0.2)'] },
+  { id:'blue',    name:'Biru',     light:['#2563eb','#3b82f6','#eff6ff','#0284c7','rgba(37,99,235,0.3)'],    dark:['#60a5fa','#3b82f6','#0c1a3d','#0369a1','rgba(96,165,250,0.2)'] },
+  { id:'purple',  name:'Ungu',     light:['#7c3aed','#8b5cf6','#f5f3ff','#6d28d9','rgba(124,58,237,0.3)'],  dark:['#a78bfa','#8b5cf6','#1e1030','#5b21b6','rgba(167,139,250,0.2)'] },
+  { id:'rose',    name:'Merah Muda',light:['#e11d48','#f43f5e','#fff1f2','#be123c','rgba(225,29,72,0.3)'],   dark:['#fb7185','#f43f5e','#2d0a14','#9f1239','rgba(251,113,133,0.2)'] },
+  { id:'orange',  name:'Oranye',   light:['#ea580c','#f97316','#fff7ed','#c2410c','rgba(234,88,12,0.3)'],    dark:['#fb923c','#f97316','#2d1200','#9a3412','rgba(251,146,60,0.2)'] },
+  { id:'teal',    name:'Teal',     light:['#0d9488','#14b8a6','#f0fdfa','#0f766e','rgba(13,148,136,0.3)'],   dark:['#2dd4bf','#14b8a6','#011f1c','#134e4a','rgba(45,212,191,0.2)'] },
+  { id:'pink',    name:'Pink',     light:['#db2777','#ec4899','#fdf2f8','#be185d','rgba(219,39,119,0.3)'],   dark:['#f472b6','#ec4899','#2d0a1e','#9d174d','rgba(244,114,182,0.2)'] },
+  { id:'amber',   name:'Kuning',   light:['#d97706','#f59e0b','#fffbeb','#b45309','rgba(217,119,6,0.3)'],    dark:['#fbbf24','#f59e0b','#2d1f00','#92400e','rgba(251,191,36,0.2)'] },
+  { id:'indigo',  name:'Indigo',   light:['#4338ca','#6366f1','#eef2ff','#3730a3','rgba(67,56,202,0.3)'],    dark:['#818cf8','#6366f1','#0e1035','#312e81','rgba(129,140,248,0.2)'] },
+  { id:'cyan',    name:'Cyan',     light:['#0891b2','#06b6d4','#ecfeff','#0e7490','rgba(8,145,178,0.3)'],    dark:['#22d3ee','#06b6d4','#001e24','#155e75','rgba(34,211,238,0.2)'] },
+  { id:'lime',    name:'Lime',     light:['#65a30d','#84cc16','#f7fee7','#4d7c0f','rgba(101,163,13,0.3)'],   dark:['#a3e635','#84cc16','#0f1d00','#365314','rgba(163,230,53,0.2)'] },
+  { id:'red',     name:'Merah',    light:['#dc2626','#ef4444','#fff1f2','#b91c1c','rgba(220,38,38,0.3)'],    dark:['#f87171','#ef4444','#2d0808','#991b1b','rgba(248,113,113,0.2)'] },
+];
+
+let currentThemeId = localStorage.getItem('ff_theme') || 'green';
+
+function applyTheme(id, isDark) {
+  const theme = THEMES.find(t=>t.id===id) || THEMES[0];
+  const vals = isDark ? theme.dark : theme.light;
+  const root = document.documentElement.style;
+  root.setProperty('--accent', vals[0]);
+  root.setProperty('--accent-2', vals[1]);
+  root.setProperty('--accent-pale', vals[2]);
+  root.setProperty('--accent-teal', vals[3]);
+  root.setProperty('--accent-glow', vals[4]);
+  // Dark mode specific accent adjustments
+  if(isDark) {
+    root.setProperty('--green', vals[0]);
+    root.setProperty('--green-2', vals[1]);
+    root.setProperty('--green-pale', vals[2]);
+    root.setProperty('--green-teal', vals[3]);
+  }
+  currentThemeId = id;
+  localStorage.setItem('ff_theme', id);
+  // Update nav active color (uses var(--green) via CSS)
+  // Update theme setting sub
+  const sub = document.getElementById('theme-setting-sub');
+  if(sub) sub.textContent = theme.name + ' — aktif';
+  // Refresh chart colors
+  if(typeof renderChart === 'function') setTimeout(renderChart, 50);
+}
+
+function openThemeModal() {
+  renderThemeGrid();
+  document.getElementById('modal-theme').classList.add('open');
+}
+
+function renderThemeGrid() {
+  const isDark = document.body.classList.contains('dark');
+  const grid = document.getElementById('theme-grid');
+  grid.innerHTML = THEMES.map(t => {
+    const col = isDark ? t.dark[0] : t.light[0];
+    const pal = isDark ? t.dark[2] : t.light[2];
+    return `<div class="theme-swatch ${t.id===currentThemeId?'active':''}" onclick="selectTheme('${t.id}')">
+      <div class="theme-dot" style="background:linear-gradient(135deg,${col},${isDark?t.dark[3]:t.light[3]});box-shadow:0 4px 12px ${isDark?t.dark[4]:t.light[4]};"></div>
+      <div class="theme-name">${t.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectTheme(id) {
+  const isDark = document.body.classList.contains('dark');
+  applyTheme(id, isDark);
+  renderThemeGrid(); // update active state
+  closeModal('modal-theme');
+  showToast('Tema ' + (THEMES.find(t=>t.id===id)||{}).name + ' diterapkan!');
+}
+
 // ===================== DARK MODE =====================
 function applyDarkMode(on) {
   document.body.classList.toggle('dark', on);
   const sw = document.getElementById('sw-dark');
   if(sw) sw.classList.toggle('active', on);
   localStorage.setItem('ff_dark', on ? '1' : '0');
+  applyTheme(currentThemeId, on);
 }
 function toggleDarkMode() {
   const isDark = document.body.classList.contains('dark');
@@ -2394,7 +2773,13 @@ document.head.appendChild(shakeStyle);
 
 // ===================== INIT =====================
 // Dark mode
-if(localStorage.getItem('ff_dark')==='1') applyDarkMode(true);
+// Apply saved theme
+const _savedTheme = localStorage.getItem('ff_theme') || 'green';
+const _isDarkInit  = localStorage.getItem('ff_dark')==='1';
+applyTheme(_savedTheme, _isDarkInit);
+if(_isDarkInit) document.body.classList.add('dark');
+const _swDark = document.getElementById('sw-dark');
+if(_swDark && _isDarkInit) _swDark.classList.add('active');
 
 // PIN lock — show if PIN is set
 const _savedPin = localStorage.getItem('ff_pin');
