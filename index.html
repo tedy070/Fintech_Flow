@@ -472,9 +472,20 @@
   .pin-logo { font-size:15px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--accent-2),var(--accent-teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:36px; }
   .pin-title { font-size:24px;font-weight:800;color:white;margin-bottom:8px;letter-spacing:-0.3px; }
   .pin-sub { font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:36px;font-weight:500; }
-  .pin-dots { display:flex;gap:18px;margin-bottom:44px; }
-  .pin-dot { width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);transition:all .2s cubic-bezier(.34,1.56,.64,1); }
-  .pin-dot.filled { background:linear-gradient(135deg,var(--accent-2),var(--accent-teal));border-color:transparent;transform:scale(1.1); }
+  .pin-dots { display:flex;gap:22px;margin-bottom:44px; }
+  .pin-dot {
+    width:22px; height:22px; border-radius:50%;
+    border:2.5px solid rgba(255,255,255,0.25);
+    background:rgba(255,255,255,0.05);
+    transition:all .25s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .pin-dot.filled {
+    background:linear-gradient(135deg,var(--accent-2),var(--accent-teal));
+    border-color:transparent;
+    transform:scale(1.18);
+    box-shadow:0 4px 16px var(--accent-glow);
+  }
   .pin-pad { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:272px; }
   .pin-key { height:72px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);font-size:24px;font-weight:700;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;backdrop-filter:blur(8px); }
   .pin-key:active { background:var(--accent-glow);transform:scale(.93); }
@@ -485,8 +496,8 @@
   #modal-pin .pin-key { color:var(--head); background:var(--card2); border-color:var(--border); }
   #modal-pin .pin-key:active { background:var(--accent-pale); color:var(--accent); }
   #modal-pin .pin-key.del { background:none; border:none; color:var(--sub); }
-  #modal-pin .pin-dot { border-color:var(--border2); }
-  #modal-pin .pin-dot.filled { background:linear-gradient(135deg,var(--accent-2),var(--accent-teal)); border-color:transparent; }
+  #modal-pin .pin-dot { border-color:var(--border2); background:var(--card2); box-shadow:none; }
+  #modal-pin .pin-dot.filled { background:linear-gradient(135deg,var(--accent-2),var(--accent-teal)); border-color:transparent; box-shadow:0 4px 12px var(--accent-glow); }
 
   @media (max-width:430px) { .fab { right:16px; } }
 </style>
@@ -509,18 +520,25 @@
   </div>
 
   <!-- NOTIFICATION PANEL (dropdown) -->
-  <div id="notif-panel" style="display:none;position:fixed;top:57px;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);z-index:250;border-bottom:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.18);max-height:65vh;overflow-y:auto;border-radius:0 0 20px 20px;">
-    <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:15px;font-weight:800;color:var(--dark);">Notifikasi</span>
-      <button onclick="markAllRead()" style="font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-pale);border:none;cursor:pointer;padding:6px 12px;border-radius:7px;font-family:inherit;">✓ Dibaca Semua</button>
+  <!-- NOTIFIKASI FULL PANEL -->
+  <div id="notif-panel" style="display:none;position:fixed;inset:0;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg);z-index:250;display:none;flex-direction:column;">
+    <!-- Header -->
+    <div style="background:var(--card);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:var(--sh1);padding-top:calc(14px + env(safe-area-inset-top,0px));">
+      <button onclick="closeNotif()" style="width:34px;height:34px;border-radius:10px;background:var(--card2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--body)" stroke-width="2.5" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span style="font-size:17px;font-weight:800;color:var(--head);flex:1;">Notifikasi</span>
+      <button onclick="markAllRead()" style="font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-pale);border:none;cursor:pointer;padding:6px 12px;border-radius:7px;font-family:inherit;flex-shrink:0;">✓ Dibaca Semua</button>
     </div>
-    <div style="display:flex;gap:6px;padding:0 14px 10px;flex-wrap:wrap;">
+    <!-- Filter pills -->
+    <div style="display:flex;gap:6px;padding:12px 14px 10px;flex-wrap:wrap;background:var(--card);flex-shrink:0;border-bottom:1px solid var(--border);">
       <button class="filter-pill active" id="nf-all" onclick="setNotifFilter('all',this)">Semua</button>
       <button class="filter-pill" id="nf-txn" onclick="setNotifFilter('txn',this)">Transaksi</button>
       <button class="filter-pill" id="nf-sched" onclick="setNotifFilter('sched',this)">Jadwal</button>
       <button class="filter-pill" id="nf-warn" onclick="setNotifFilter('warn',this)">Peringatan</button>
     </div>
-    <div id="notif-list" style="padding:0 10px 10px;"></div>
+    <!-- List scrollable -->
+    <div id="notif-list" style="flex:1;overflow-y:auto;padding:10px;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));"></div>
   </div>
   <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:240;" onclick="closeNotif()"></div>
 
@@ -808,7 +826,7 @@
       <input class="form-input input-has-icon" id="txn-name" type="text" placeholder="Cth: Makan Siang, Gaji Bulanan...">
     </div>
     <label class="form-label">TANGGAL</label>
-    <input class="form-input" id="txn-date" type="date" style="margin-bottom:14px;">
+    <input class="form-input" id="txn-date" type="date" style="margin-bottom:14px;width:100%;box-sizing:border-box;">
     <label class="form-label">KATEGORI</label>
     <input type="hidden" id="txn-cat" value="">
     <button type="button" class="cat-select-btn" id="txn-cat-select-btn" onclick="openCatModal('txn')">
@@ -837,8 +855,8 @@
       <input class="form-input input-has-icon" id="sched-name" type="text" placeholder="e.g. Rapat Tim, Gym, Check-in Hotel">
     </div>
     <div class="form-row">
-      <div><label class="form-label">MULAI</label><input class="form-input" id="sched-start" type="time" value="09:00" style="margin-bottom:14px;"></div>
-      <div><label class="form-label">SELESAI</label><input class="form-input" id="sched-end" type="time" value="10:30" style="margin-bottom:14px;"></div>
+      <div style="flex:1;min-width:0;"><label class="form-label">MULAI</label><input class="form-input" id="sched-start" type="time" value="09:00" style="margin-bottom:14px;width:100%;box-sizing:border-box;"></div>
+      <div style="flex:1;min-width:0;"><label class="form-label">SELESAI</label><input class="form-input" id="sched-end" type="time" value="10:30" style="margin-bottom:14px;width:100%;box-sizing:border-box;"></div>
     </div>
     <label class="form-label">LOKASI</label>
     <div class="input-icon-wrap">
@@ -1684,24 +1702,110 @@ function renderScheduleList() {
 // ===================== NOTIF BROWSER =====================
 function requestNotifPermission() {
   if(!('Notification' in window)) return showToast('Browser tidak mendukung notifikasi',true);
-  Notification.requestPermission().then(p=>{
-    if(p==='granted'){showToast('Notifikasi berhasil diaktifkan!');scheduleJadwalNotifs();document.getElementById('notif-banner').style.display='none';}
-    else showToast('Izin notifikasi ditolak',true);
+  requestPushPermission(); //});
+}
+// ===================== PUSH NOTIFICATIONS =====================
+const _notifTimers = []; // track all scheduled timers so we can clear on reschedule
+
+function clearScheduledNotifs() {
+  _notifTimers.forEach(t=>clearTimeout(t));
+  _notifTimers.length = 0;
+}
+
+function sendPushNotif(title, body, tag) {
+  if(Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification(title, {
+      body,
+      tag: tag || 'ff-notif',
+      icon: '',
+      badge: '',
+      silent: false,
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch(e) { console.warn('Push notif failed:', e); }
+}
+
+function scheduleJadwalNotifs() {
+  if(Notification.permission !== 'granted') return;
+  clearScheduledNotifs();
+  const today = new Date().toISOString().slice(0,10);
+  const todayScheds = schedules.filter(s => s.date === today);
+
+  todayScheds.forEach(s => {
+    const [h, m] = (s.start || '00:00').split(':').map(Number);
+
+    // 15 min before reminder
+    const before15 = new Date();
+    before15.setHours(h, m - 15, 0, 0);
+    const diff15 = before15 - Date.now();
+    if(diff15 > 0) {
+      const t1 = setTimeout(() => {
+        sendPushNotif(
+          '⏰ Jadwal dalam 15 Menit',
+          `${s.name}${s.loc ? ' · ' + s.loc : ''} • ${s.start}${s.end ? '–' + s.end : ''}`,
+          'sched-15-' + s.id
+        );
+        // Add in-app notification
+        addInAppNotif({ type:'sched', title:'Pengingat Jadwal', body:`${s.name} mulai dalam 15 menit`, time: new Date().toISOString() });
+      }, diff15);
+      _notifTimers.push(t1);
+    }
+
+    // At start time
+    const atStart = new Date();
+    atStart.setHours(h, m, 0, 0);
+    const diffStart = atStart - Date.now();
+    if(diffStart > 0) {
+      const t2 = setTimeout(() => {
+        sendPushNotif(
+          '🔔 Jadwal Dimulai Sekarang',
+          `${s.name}${s.loc ? ' · ' + s.loc : ''}`,
+          'sched-start-' + s.id
+        );
+        addInAppNotif({ type:'sched', title:'Jadwal Dimulai', body:`${s.name} sedang berlangsung`, time: new Date().toISOString() });
+      }, diffStart);
+      _notifTimers.push(t2);
+    }
   });
 }
-function scheduleJadwalNotifs() {
-  if(Notification.permission!=='granted') return;
-  const today=new Date().toISOString().slice(0,10);
-  const todayScheds=schedules.filter(s=>s.date===today);
-  todayScheds.forEach(s=>{
-    const [h,m]=s.start.split(':');
-    const notifTime=new Date();
-    notifTime.setHours(parseInt(h),parseInt(m)-15,0,0);
-    const diff=notifTime-Date.now();
-    if(diff>0) {
-      setTimeout(()=>{
-        new Notification('⏰ Jadwal dalam 15 menit', {body:`${s.name}${s.loc?' · '+s.loc:''}`,icon:''});
-      }, diff);
+
+function notifAfterTxn(txn) {
+  // In-app notification after saving a transaction
+  const sign = txn.type === 'income' ? '+' : '−';
+  addInAppNotif({
+    type: 'txn',
+    title: txn.type === 'income' ? '💰 Pemasukan Dicatat' : '💸 Pengeluaran Dicatat',
+    body: `${sign} ${fmt(txn.amount)} · ${txn.name} (${txn.cat})`,
+    time: new Date().toISOString()
+  });
+  // Push notification
+  if(Notification.permission === 'granted') {
+    sendPushNotif(
+      txn.type === 'income' ? '💰 Pemasukan Dicatat' : '💸 Pengeluaran Dicatat',
+      `${sign} ${fmt(txn.amount)} · ${txn.name}`,
+      'txn-' + Date.now()
+    );
+  }
+}
+
+function addInAppNotif(notifObj) {
+  const stored = JSON.parse(localStorage.getItem('ff_notifs') || '[]');
+  notifObj.id = Date.now();
+  notifObj.read = false;
+  stored.unshift(notifObj);
+  // Keep only last 100
+  if(stored.length > 100) stored.splice(100);
+  localStorage.setItem('ff_notifs', JSON.stringify(stored));
+  renderNotifBadge();
+}
+
+function requestPushPermission() {
+  Notification.requestPermission().then(p => {
+    if(p === 'granted') {
+      showToast('Notifikasi berhasil diaktifkan!');
+      scheduleJadwalNotifs();
+      document.getElementById('notif-banner').style.display = 'none';
     }
   });
 }
@@ -1905,7 +2009,8 @@ function saveTxn() {
   const cat=document.getElementById('txn-cat').value;
   const date=document.getElementById('txn-date').value;
   if(!amount||!name||!cat||!date){showToast('Lengkapi semua field!',true);return;}
-  transactions.push({id:Date.now(),type:txnType,amount,name,cat,date,status:txnType==='income'?'Selesai':'Lunas'});
+  const newTxn={id:Date.now(),type:txnType,amount,name,cat,date,status:txnType==='income'?'Selesai':'Lunas'};
+  transactions.push(newTxn);
   // If editing, remove old record first
   if(_editingTxn) {
     transactions = transactions.filter(x=>x.id!==_editingTxn.id);
@@ -1917,6 +2022,7 @@ function saveTxn() {
   closeModal('modal-txn');
   document.getElementById('txn-amount').value=''; document.getElementById('txn-name').value=''; document.getElementById('txn-cat').value='';
   renderAnggaran(); showToast('Transaksi berhasil disimpan');
+  notifAfterTxn(newTxn);
 }
 
 // ===================== CONFIRM DELETE =====================
@@ -2077,6 +2183,7 @@ function saveSchedule() {
   closeModal('modal-jadwal');
   ['sched-name','sched-loc','sched-desc'].forEach(id=>document.getElementById(id).value='');
   renderJadwal(); renderScheduleList(); showToast('Jadwal berhasil disimpan');
+  scheduleJadwalNotifs();
   // Schedule browser notification if permission granted
   if(Notification.permission==='granted') {
     const [h,m]=start.split(':'), d=new Date(newSched.date+'T'+start+':00');
@@ -2176,9 +2283,9 @@ function updateNotifBadge(count) {
 function renderNotifBadge(){ updateNotifBadge(generateNotifs().filter(n=>!readNotifIds.has(n.id)).length); }
 function toggleNotif(){
   const panel=document.getElementById('notif-panel'), overlay=document.getElementById('notif-overlay');
-  const open = panel.style.display==='block';
+  const open = panel.style.display==='flex';
   if(open){ panel.style.display='none'; overlay.style.display='none'; unlockScroll(); }
-  else { panel.style.display='block'; overlay.style.display='block'; lockScroll(); renderNotifPage(); }
+  else { panel.style.display='flex'; overlay.style.display='none'; lockScroll(); renderNotifPage(); }
 }
 function closeNotif(){
   const panel=document.getElementById('notif-panel'), overlay=document.getElementById('notif-overlay');
@@ -2809,6 +2916,8 @@ renderAnggaran();
 renderJadwal();
 renderNotifBadge();
 if(Notification.permission==='granted') scheduleJadwalNotifs();
+// Re-schedule every midnight
+setInterval(()=>{ if(Notification.permission==='granted') scheduleJadwalNotifs(); }, 60*60*1000);
 </script>
 </body>
 </html>
