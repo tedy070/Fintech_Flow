@@ -58,6 +58,10 @@
   .page { display:none; padding:76px 0 88px; }
   .page.active { display:block; }
 
+  /* ── SCROLL LOCK (when modal/panel open) ── */
+  body.scroll-locked .app { overflow:hidden; height:100vh; }
+  body.scroll-locked { overflow:hidden; }
+
   /* ── BOTTOM NAV ── */
   .bottom-nav {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
@@ -164,8 +168,18 @@
 
   /* ── SWIPE GESTURE ── */
   .txn-item { position:relative; overflow:hidden; }
-  .swipe-reveal { position:absolute; right:0; top:0; height:100%; display:flex; align-items:stretch; pointer-events:none; }
-  .swipe-action { display:flex; flex-direction:column; align-items:center; justify-content:center; width:64px; font-size:10px; font-weight:700; gap:4px; padding:0 6px; }
+  /* Reveal panel: hidden by default, slides in when swiped */
+  .swipe-reveal {
+    position:absolute; right:0; top:0; height:100%; display:flex; align-items:stretch;
+    transform:translateX(128px); /* hidden off-screen to the right */
+    transition:transform .25s cubic-bezier(.32,0,.67,0);
+    pointer-events:none;
+  }
+  .txn-item.swiped-left .swipe-reveal {
+    transform:translateX(0); /* slide into view */
+    pointer-events:auto;
+  }
+  .swipe-action { display:flex; flex-direction:column; align-items:center; justify-content:center; width:64px; font-size:10px; font-weight:700; gap:4px; padding:0 6px; cursor:pointer; }
   .swipe-action.edit { background:var(--accent-pale); color:var(--accent); }
   .swipe-action.del  { background:var(--red-pale);    color:var(--red); }
   .swipe-action svg  { width:18px; height:18px; }
@@ -1346,7 +1360,7 @@ function setChartRange(n, el) {
   renderChart();
   renderStreakWidget();
 }
-function openFilterModal() { document.getElementById('modal-filter').classList.add('open'); }
+function openFilterModal() { document.getElementById('modal-filter').classList.add('open'); lockScroll(); }
 function resetFilter() {
   txnFilter={type:'all',cat:'',dateFrom:'',dateTo:''};
   document.getElementById('filter-date-from').value='';
@@ -1709,8 +1723,8 @@ function scheduleJadwalNotifs() {
 
 // ===================== MODAL =====================
 function openModal(type) {
-  if(type==='goal') { document.getElementById('goal-name').value=''; document.getElementById('goal-target').value=''; document.getElementById('goal-saved').value=''; document.getElementById('goal-deadline').value=''; selectedGoalEmoji='🎯'; document.querySelectorAll('#goal-emoji-row .cat-chip').forEach((c,i)=>c.classList.toggle('active',i===0)); document.getElementById('modal-goal').classList.add('open'); return; }
-  if(type==='recur') { document.getElementById('recur-name').value=''; document.getElementById('recur-amount').value=''; document.getElementById('recur-start').value=new Date().toISOString().slice(0,10); setRecurType('expense'); document.getElementById('modal-recur').classList.add('open'); return; }
+  if(type==='goal') { document.getElementById('goal-name').value=''; document.getElementById('goal-target').value=''; document.getElementById('goal-saved').value=''; document.getElementById('goal-deadline').value=''; selectedGoalEmoji='🎯'; document.querySelectorAll('#goal-emoji-row .cat-chip').forEach((c,i)=>c.classList.toggle('active',i===0)); document.getElementById('modal-goal').classList.add('open'); lockScroll(); return; }
+  if(type==='recur') { document.getElementById('recur-name').value=''; document.getElementById('recur-amount').value=''; document.getElementById('recur-start').value=new Date().toISOString().slice(0,10); setRecurType('expense'); document.getElementById('modal-recur').classList.add('open'); lockScroll(); return; }
   if(currentPage==='anggaran'){
     _editingTxn = null; // ensure fresh add mode
     document.getElementById('txn-date').value=new Date().toISOString().slice(0,10);
@@ -1718,6 +1732,7 @@ function openModal(type) {
     const txnTitle = document.querySelector('#modal-txn .modal-title');
     if(txnTitle) txnTitle.textContent = 'Tambah Transaksi';
     document.getElementById('modal-txn').classList.add('open');
+    lockScroll();
   } else if(currentPage==='jadwal') {
     _editingSched = null; // ensure fresh add mode
     selectedSchedCat='Work';
@@ -1733,13 +1748,24 @@ function openModal(type) {
     document.getElementById('modal-jadwal').classList.add('open');
   }
 }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function lockScroll()   { document.body.classList.add('scroll-locked'); }
+function unlockScroll() {
+  // Only unlock if no modal/panel is open
+  const anyOpen = document.querySelector('.modal-overlay.open, .cat-modal-overlay.open, .confirm-overlay.open');
+  const notifOpen = document.getElementById('notif-panel')?.style.display === 'block';
+  if(!anyOpen && !notifOpen) document.body.classList.remove('scroll-locked');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  unlockScroll();
+}
 document.querySelectorAll('.modal-overlay').forEach(el=>{
   el.addEventListener('click',function(e){
     if(e.target!==this) return;
     if(this.id==='modal-txn') { cancelEditTxn(); }
     else if(this.id==='modal-jadwal') { cancelEditSched(); }
     else { this.classList.remove('open'); }
+    unlockScroll();
   });
 });
 
@@ -1800,10 +1826,12 @@ function openCatModal(context) {
     </div>`;
   }).join('');
   document.getElementById('cat-modal-overlay').classList.add('open');
+  lockScroll();
 }
 
 function closeCatModal() {
   document.getElementById('cat-modal-overlay').classList.remove('open');
+  unlockScroll();
 }
 
 function selectCatFromModal(name, bg, stroke) {
@@ -1923,6 +1951,7 @@ function confirmDeleteExec() {
 
 function closeConfirm() {
   document.getElementById('confirm-overlay').classList.remove('open');
+  unlockScroll();
 }
 
 // Close confirm when clicking overlay background
@@ -1975,6 +2004,7 @@ function editTxn(id) {
   const title = document.querySelector('#modal-txn .modal-title');
   if(title) title.textContent = 'Edit Transaksi';
   document.getElementById('modal-txn').classList.add('open');
+  lockScroll();
 }
 
 function cancelEditTxn() {
@@ -1986,7 +2016,8 @@ function cancelEditTxn() {
   // Reset modal title
   const title = document.querySelector('#modal-txn .modal-title');
   if(title) title.textContent = 'Tambah Transaksi';
-  closeModal('modal-txn');
+  document.getElementById('modal-txn').classList.remove('open');
+  unlockScroll();
 }
 
 // ===================== SCHED EDIT / DELETE =====================
@@ -2030,13 +2061,15 @@ function editSched(id) {
   const title = document.querySelector('#modal-jadwal .modal-title');
   if(title) title.textContent = 'Edit Jadwal';
   document.getElementById('modal-jadwal').classList.add('open');
+  lockScroll();
 }
 
 function cancelEditSched() {
   if(_editingSched) { _editingSched = null; }
   const title = document.querySelector('#modal-jadwal .modal-title');
   if(title) title.textContent = 'Jadwal Baru';
-  closeModal('modal-jadwal');
+  document.getElementById('modal-jadwal').classList.remove('open');
+  unlockScroll();
 }
 function selectSchedCatGrid(el, name) {
   if(el) el.classList.add('active');
@@ -2159,13 +2192,14 @@ function renderNotifBadge(){ updateNotifBadge(generateNotifs().filter(n=>!readNo
 function toggleNotif(){
   const panel=document.getElementById('notif-panel'), overlay=document.getElementById('notif-overlay');
   const open = panel.style.display==='block';
-  if(open){ panel.style.display='none'; overlay.style.display='none'; }
-  else { panel.style.display='block'; overlay.style.display='block'; renderNotifPage(); }
+  if(open){ panel.style.display='none'; overlay.style.display='none'; unlockScroll(); }
+  else { panel.style.display='block'; overlay.style.display='block'; lockScroll(); renderNotifPage(); }
 }
 function closeNotif(){
   const panel=document.getElementById('notif-panel'), overlay=document.getElementById('notif-overlay');
   if(panel) panel.style.display='none';
   if(overlay) overlay.style.display='none';
+  unlockScroll();
 }
 function clearAllNotif(){ markAllRead(); }
 // ===================== PROFIL =====================
@@ -2191,7 +2225,7 @@ function openEditProfil() {
   document.getElementById('edit-email').value=profil.email;
   document.getElementById('edit-hp').value=profil.hp;
   document.getElementById('edit-kota').value=profil.kota;
-  document.getElementById('modal-profil').classList.add('open');
+  document.getElementById('modal-profil').classList.add('open'); lockScroll();
 }
 function saveProfil() {
   const nama=document.getElementById('edit-nama').value.trim(), email=document.getElementById('edit-email').value.trim();
@@ -2210,7 +2244,7 @@ function openProfJadwal() {
   schedules.forEach(s=>{if(!dateMap[s.date])dateMap[s.date]=[];dateMap[s.date].push(s);});
   const sortedDates=Object.keys(dateMap).sort();
   const container=document.getElementById('pj-date-list');
-  if(!sortedDates.length){container.innerHTML=`<div class="empty-state">${SVG.emptyCal}<p>Belum ada jadwal tersimpan.</p></div>`;document.getElementById('modal-prof-jadwal').classList.add('open');return;}
+  if(!sortedDates.length){container.innerHTML=`<div class="empty-state">${SVG.emptyCal}<p>Belum ada jadwal tersimpan.</p></div>`;document.getElementById('modal-prof-jadwal').classList.add('open'); lockScroll();return;}
   container.innerHTML=sortedDates.map(ds=>{
     const d=new Date(ds+'T00:00:00'), items=dateMap[ds], isToday=ds===new Date().toISOString().slice(0,10);
     const itemsHtml=items.sort((a,b)=>a.start.localeCompare(b.start)).map(s=>{
@@ -2237,7 +2271,7 @@ function openProfJadwal() {
       </div>
     </div>`;
   }).join('');
-  document.getElementById('modal-prof-jadwal').classList.add('open');
+  document.getElementById('modal-prof-jadwal').classList.add('open'); lockScroll();
 }
 function openProfSaldo() {
   const totalMasuk=transactions.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
@@ -2265,7 +2299,7 @@ function openProfSaldo() {
     <div style="font-size:10.5px;font-weight:700;color:var(--gray-muted);letter-spacing:0.8px;margin-bottom:8px;">TRANSAKSI TERBARU</div>
     <div style="margin-bottom:12px;">${recentHtml}</div>
     <button onclick="bukaDiAnggaran()" style="width:100%;padding:12px;background:var(--green);color:white;border:none;border-radius:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Lihat Semua di Anggaran →</button>`;
-  document.getElementById('modal-prof-saldo').classList.add('open');
+  document.getElementById('modal-prof-saldo').classList.add('open'); lockScroll();
 }
 function bukaDiJadwal(ds){ closeModal('modal-prof-jadwal'); selectedDay=ds; switchPage('jadwal'); setTimeout(()=>renderJadwal(ds),80); }
 function bukaDiAnggaran(){ closeModal('modal-prof-saldo'); switchPage('anggaran'); }
@@ -2363,7 +2397,7 @@ function openTopUp(id) {
   document.getElementById('topup-title').textContent='Top Up — '+g.name;
   document.getElementById('topup-goal-id').value=id;
   document.getElementById('topup-amount').value='';
-  document.getElementById('modal-topup').classList.add('open');
+  document.getElementById('modal-topup').classList.add('open'); lockScroll();
 }
 
 function doTopUp() {
@@ -2569,6 +2603,7 @@ function applyTheme(id, isDark) {
 function openThemeModal() {
   renderThemeGrid();
   document.getElementById('modal-theme').classList.add('open');
+  lockScroll();
 }
 
 function renderThemeGrid() {
@@ -2717,7 +2752,7 @@ function openSetPin(fromOnboard=false) {
   modalPinTemp = '';
   updatePinDots('mpd', 0);
   document.getElementById('modal-pin-error').textContent = '';
-  document.getElementById('modal-pin').classList.add('open');
+  document.getElementById('modal-pin').classList.add('open'); lockScroll();
   // Update profil label
   updatePinSettingLabel();
 }
@@ -2790,6 +2825,24 @@ if(_savedPin) {
 } else if(!_onboarded) {
   showOnboarding();
 }
+
+// ── AUTO-LOCK: aktifkan PIN kembali saat user keluar / pindah tab / tutup app ──
+function autoLockPin() {
+  if(localStorage.getItem('ff_pin')) {
+    showPinLock();
+  }
+}
+
+// Saat tab disembunyikan (pindah tab, minimize, layar mati)
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden') {
+    autoLockPin();
+  }
+});
+
+// Saat user menutup / refresh halaman (pagehide lebih andal dari beforeunload di mobile)
+window.addEventListener('pagehide', autoLockPin);
+window.addEventListener('beforeunload', autoLockPin);
 
 updatePinSettingLabel();
 renderAnggaran();
