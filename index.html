@@ -166,26 +166,7 @@
   .icon-btn.del:hover svg { stroke:var(--red); }
 
 
-  /* ── SWIPE GESTURE ── */
-  .txn-item { position:relative; overflow:hidden; }
-  /* Reveal panel: hidden by default, slides in when swiped */
-  .swipe-reveal {
-    position:absolute; right:0; top:0; height:100%; display:flex; align-items:stretch;
-    transform:translateX(128px); /* hidden off-screen to the right */
-    transition:transform .25s cubic-bezier(.32,0,.67,0);
-    pointer-events:none;
-  }
-  .txn-item.swiped-left .swipe-reveal {
-    transform:translateX(0); /* slide into view */
-    pointer-events:auto;
-  }
-  .swipe-action { display:flex; flex-direction:column; align-items:center; justify-content:center; width:64px; font-size:10px; font-weight:700; gap:4px; padding:0 6px; cursor:pointer; }
-  .swipe-action.edit { background:var(--accent-pale); color:var(--accent); }
-  .swipe-action.del  { background:var(--red-pale);    color:var(--red); }
-  .swipe-action svg  { width:18px; height:18px; }
-  .txn-item-inner { display:flex; align-items:center; gap:12px; width:100%; transition:transform .25s cubic-bezier(.32,0,.67,0); will-change:transform; }
-  .txn-item.swiped-left  .txn-item-inner { transform:translateX(-128px); }
-  .txn-item.swiped-right .txn-item-inner { transform:translateX(0); }
+  /* txn-item: no swipe */
 
   /* ── STREAK WIDGET ── */
   .streak-widget { display:flex; gap:10px; margin:0 14px 14px; }
@@ -484,18 +465,28 @@
   .onboard-btn-skip { background:none;border:none;color:#475569;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px; }
 
   /* ── PIN ── */
-  .pin-overlay { position:fixed;inset:0;background:linear-gradient(160deg,#0b1628,#0f2010);z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center; }
-  .pin-logo { font-size:15px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,#4ade80,#2dd4bf);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:36px; }
+  .pin-overlay {
+    position:fixed; inset:0; z-index:900; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:linear-gradient(160deg, var(--pin-bg1,#0b1628), var(--pin-bg2,#0f1a10));
+  }
+  .pin-logo { font-size:15px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--accent-2),var(--accent-teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:36px; }
   .pin-title { font-size:24px;font-weight:800;color:white;margin-bottom:8px;letter-spacing:-0.3px; }
-  .pin-sub { font-size:13px;color:#475569;margin-bottom:36px;font-weight:500; }
+  .pin-sub { font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:36px;font-weight:500; }
   .pin-dots { display:flex;gap:18px;margin-bottom:44px; }
-  .pin-dot { width:16px;height:16px;border-radius:50%;border:2px solid #1e3a5f;transition:all .2s cubic-bezier(.34,1.56,.64,1); }
-  .pin-dot.filled { background:linear-gradient(135deg,#4ade80,#2dd4bf);border-color:transparent;transform:scale(1.1); }
+  .pin-dot { width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);transition:all .2s cubic-bezier(.34,1.56,.64,1); }
+  .pin-dot.filled { background:linear-gradient(135deg,var(--accent-2),var(--accent-teal));border-color:transparent;transform:scale(1.1); }
   .pin-pad { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:272px; }
-  .pin-key { height:72px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);font-size:24px;font-weight:700;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;backdrop-filter:blur(8px); }
-  .pin-key:active { background:rgba(74,222,128,0.2);transform:scale(.93); }
+  .pin-key { height:72px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);font-size:24px;font-weight:700;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;backdrop-filter:blur(8px); }
+  .pin-key:active { background:var(--accent-glow);transform:scale(.93); }
   .pin-key.del { background:none;border:none;font-size:20px; }
   .pin-error { color:#f87171;font-size:13px;font-weight:600;margin-top:-36px;margin-bottom:16px;height:16px; }
+
+  /* Modal PIN pad — light background, needs dark text */
+  #modal-pin .pin-key { color:var(--head); background:var(--card2); border-color:var(--border); }
+  #modal-pin .pin-key:active { background:var(--accent-pale); color:var(--accent); }
+  #modal-pin .pin-key.del { background:none; border:none; color:var(--sub); }
+  #modal-pin .pin-dot { border-color:var(--border2); }
+  #modal-pin .pin-dot.filled { background:linear-gradient(135deg,var(--accent-2),var(--accent-teal)); border-color:transparent; }
 
   @media (max-width:430px) { .fab { right:16px; } }
 </style>
@@ -1433,20 +1424,14 @@ function renderAnggaran() {
     const sign=t.type==='income'?'+':'-', cls=t.type==='income'?'income':'expense';
     const meta=CAT_ICON_BG[t.cat]||{bg:'#f9fafb',stroke:'#6b7280'};
     const iconSvg=getCatIcon(t.cat).replace('stroke="currentColor"',`stroke="${meta.stroke}"`);
-    return `<div class="txn-item" id="txni-${t.id}" ontouchstart="swipeStart(event,'txni-${t.id}')" ontouchend="swipeEnd(event,'txni-${t.id}',${t.id},'txn')">
-      <div class="swipe-reveal">
-        <div class="swipe-action edit" onclick="editTxn(${t.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</div>
-        <div class="swipe-action del" onclick="deleteTxn(${t.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Hapus</div>
-      </div>
-      <div class="txn-item-inner">
-        <div class="txn-icon" style="background:${meta.bg};">${iconSvg}</div>
-        <div class="txn-body"><div class="txn-name">${t.name}</div><div class="txn-meta">${t.cat} · ${t.date}</div></div>
-        <div class="txn-right">
-          <span class="txn-amount ${cls}">${sign} ${fmt(t.amount)}</span>
-          <div class="txn-actions">
-            <button class="icon-btn" onclick="editTxn(${t.id})">${SVG.edit}</button>
-            <button class="icon-btn del" onclick="deleteTxn(${t.id})">${SVG.trash}</button>
-          </div>
+    return `<div class="txn-item">
+      <div class="txn-icon" style="background:${meta.bg};">${iconSvg}</div>
+      <div class="txn-body"><div class="txn-name">${t.name}</div><div class="txn-meta">${t.cat} · ${t.date}</div></div>
+      <div class="txn-right">
+        <span class="txn-amount ${cls}">${sign} ${fmt(t.amount)}</span>
+        <div class="txn-actions">
+          <button class="icon-btn" onclick="editTxn(${t.id})">${SVG.edit}</button>
+          <button class="icon-btn del" onclick="deleteTxn(${t.id})">${SVG.trash}</button>
         </div>
       </div>
     </div>`;
@@ -2478,45 +2463,6 @@ function exportCSV() {
 }
 
 
-// ===================== SWIPE GESTURE =====================
-let _swipeStartX = 0;
-let _swipeStartY = 0;
-let _swipeActive = null;
-
-function swipeStart(e, elId) {
-  _swipeStartX = e.touches[0].clientX;
-  _swipeStartY = e.touches[0].clientY;
-  _swipeActive = elId;
-}
-
-function swipeEnd(e, elId, itemId, type) {
-  const dx = e.changedTouches[0].clientX - _swipeStartX;
-  const dy = e.changedTouches[0].clientY - _swipeStartY;
-  if(Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 40) { resetSwipe(elId); return; }
-  const el = document.getElementById(elId);
-  if(!el) return;
-  if(dx < -40) {
-    // Close any other open swipe
-    document.querySelectorAll('.txn-item.swiped-left').forEach(x=>{ if(x.id!==elId) x.classList.remove('swiped-left'); });
-    el.classList.add('swiped-left');
-    el.classList.remove('swiped-right');
-  } else if(dx > 40) {
-    el.classList.remove('swiped-left');
-    el.classList.add('swiped-right');
-  }
-}
-
-function resetSwipe(elId) {
-  const el = document.getElementById(elId);
-  if(el) { el.classList.remove('swiped-left','swiped-right'); }
-}
-
-// Close swipe when tapping elsewhere
-document.addEventListener('touchstart', function(e) {
-  const open = document.querySelector('.txn-item.swiped-left');
-  if(open && !open.contains(e.target)) open.classList.remove('swiped-left');
-}, {passive:true});
-
 
 // ===================== STREAK WIDGET =====================
 function renderStreakWidget() {
@@ -2592,7 +2538,21 @@ function applyTheme(id, isDark) {
   }
   currentThemeId = id;
   localStorage.setItem('ff_theme', id);
-  // Update nav active color (uses var(--green) via CSS)
+  // Set PIN overlay background colors based on theme
+  switch(id) {
+    case 'green': root.setProperty('--pin-bg1','#050f09'); root.setProperty('--pin-bg2','#051508'); break;
+    case 'blue': root.setProperty('--pin-bg1','#050915'); root.setProperty('--pin-bg2','#06091a'); break;
+    case 'purple': root.setProperty('--pin-bg1','#0d0618'); root.setProperty('--pin-bg2','#110520'); break;
+    case 'rose': root.setProperty('--pin-bg1','#150306'); root.setProperty('--pin-bg2','#1a0408'); break;
+    case 'orange': root.setProperty('--pin-bg1','#150800'); root.setProperty('--pin-bg2','#1a0b00'); break;
+    case 'teal': root.setProperty('--pin-bg1','#021210'); root.setProperty('--pin-bg2','#031a17'); break;
+    case 'pink': root.setProperty('--pin-bg1','#150210'); root.setProperty('--pin-bg2','#1a0314'); break;
+    case 'amber': root.setProperty('--pin-bg1','#150b00'); root.setProperty('--pin-bg2','#1a0e00'); break;
+    case 'indigo': root.setProperty('--pin-bg1','#060518'); root.setProperty('--pin-bg2','#08071f'); break;
+    case 'cyan': root.setProperty('--pin-bg1','#011419'); root.setProperty('--pin-bg2','#021a20'); break;
+    case 'lime': root.setProperty('--pin-bg1','#081200'); root.setProperty('--pin-bg2','#0d1800'); break;
+    case 'red': root.setProperty('--pin-bg1','#150202'); root.setProperty('--pin-bg2','#1a0303'); break;
+  }
   // Update theme setting sub
   const sub = document.getElementById('theme-setting-sub');
   if(sub) sub.textContent = theme.name + ' — aktif';
