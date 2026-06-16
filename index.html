@@ -202,6 +202,43 @@
   .confirm-btn-del { flex:1; padding:13px; border-radius:13px; border:none; background:var(--red); font-size:14px; font-weight:700; color:white; cursor:pointer; font-family:inherit; transition:all .15s; box-shadow:0 4px 12px rgba(239,68,68,0.3); }
   .confirm-btn-del:active { transform:scale(.97); }
 
+
+  /* ── EXPORT MODAL ── */
+  .export-section { margin-bottom:20px; }
+  .export-section-title { font-size:11px; font-weight:800; color:var(--muted); letter-spacing:0.8px; text-transform:uppercase; margin-bottom:10px; }
+  .export-date-row { display:flex; gap:10px; align-items:flex-end; }
+  .export-date-row > div { flex:1; min-width:0; }
+  .export-format-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .export-format-btn {
+    padding:14px 10px; border-radius:14px; border:1.5px solid var(--border);
+    background:var(--card2); cursor:pointer; text-align:center; transition:all .18s;
+    font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .export-format-btn:active { transform:scale(.96); }
+  .export-format-btn.active { border-color:var(--accent); background:var(--accent-pale); }
+  .export-format-btn.active .efb-label { color:var(--accent); }
+  .efb-icon { font-size:26px; line-height:1; }
+  .efb-label { font-size:12px; font-weight:700; color:var(--head); }
+  .efb-sub { font-size:10px; color:var(--muted); font-weight:500; }
+  .export-sheet-row { display:flex; flex-direction:column; gap:8px; }
+  .export-sheet-item {
+    display:flex; align-items:center; gap:12px; padding:12px 14px;
+    border-radius:12px; border:1.5px solid var(--border); background:var(--card2);
+    cursor:pointer; transition:all .18s; position:relative;
+  }
+  .export-sheet-item.active { border-color:var(--accent); background:var(--accent-pale); }
+  .esi-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .esi-body { flex:1; min-width:0; }
+  .esi-label { font-size:13px; font-weight:700; color:var(--head); }
+  .esi-sub { font-size:11px; color:var(--muted); font-weight:500; margin-top:1px; }
+  .esi-check { width:20px; height:20px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .18s; }
+  .export-sheet-item.active .esi-check { background:var(--accent); border-color:var(--accent); }
+  .export-progress { display:none; align-items:center; gap:10px; padding:14px; background:var(--accent-pale); border-radius:12px; border:1px solid var(--accent); margin-top:4px; }
+  .export-progress.show { display:flex; }
+  .export-spinner { width:18px; height:18px; border:2.5px solid var(--accent-pale); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .export-progress-text { font-size:12px; font-weight:600; color:var(--accent); }
+
   /* ── FAB ── */
   .fab {
     position:fixed; bottom:82px; right:calc(50% - 210px + 16px);
@@ -584,6 +621,7 @@
 
   @media (max-width:430px) { .fab { right:16px; } }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -844,7 +882,7 @@
 
     <div class="section-card">
       <div class="section-title">Lainnya</div>
-      <div class="prof-menu-item" onclick="exportCSV()"><div class="prof-menu-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Ekspor Data</div><div class="prof-menu-sub">Unduh laporan transaksi (.csv)</div></div><svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="prof-menu-item" onclick="openExportModal()"><div class="prof-menu-icon" style="background:#eff6ff;"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Ekspor Data</div><div class="prof-menu-sub">Excel / CSV — Transaksi & Rundown</div></div><svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
       <div class="prof-menu-item" onclick="showToast('Bantuan & FAQ segera hadir!')"><div class="prof-menu-icon" style="background:#fffbeb;"><svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Bantuan & FAQ</div><div class="prof-menu-sub">Pusat bantuan</div></div><svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
       <div class="prof-menu-item" onclick="showToast('Hubungi kami: support@fintechflow.id')" style="border:none;"><div class="prof-menu-icon" style="background:#ecfdf5;"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="prof-menu-body"><div class="prof-menu-label">Hubungi Kami</div><div class="prof-menu-sub">support@fintechflow.id</div></div><svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></div>
     </div>
@@ -1300,6 +1338,104 @@
       <button class="confirm-btn-cancel" onclick="closeConfirm()">Batal</button>
       <button class="confirm-btn-del" onclick="confirmDeleteExec()">Ya, Hapus</button>
     </div>
+  </div>
+</div>
+
+
+<!-- MODAL: EXPORT DATA -->
+<div class="modal-overlay" id="modal-export">
+  <div class="modal-sheet" style="padding-bottom:36px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">📤 Ekspor Data</span>
+      <button class="modal-close" onclick="closeModal('modal-export')"><svg viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- DATE RANGE -->
+    <div class="export-section">
+      <div class="export-section-title">Rentang Tanggal</div>
+      <div class="export-date-row">
+        <div>
+          <label class="form-label">DARI</label>
+          <div class="date-picker-btn" onclick="document.getElementById('exp-date-from').showPicker?document.getElementById('exp-date-from').showPicker():document.getElementById('exp-date-from').click()" style="margin-bottom:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" width="14" height="14" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span id="exp-from-display" style="flex:1;font-size:13px;font-weight:600;color:var(--head);">—</span>
+            <input type="date" id="exp-date-from" style="position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;cursor:pointer;" onchange="updateExpDisplay()">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">SAMPAI</label>
+          <div class="date-picker-btn" onclick="document.getElementById('exp-date-to').showPicker?document.getElementById('exp-date-to').showPicker():document.getElementById('exp-date-to').click()" style="margin-bottom:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" width="14" height="14" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span id="exp-to-display" style="flex:1;font-size:13px;font-weight:600;color:var(--head);">—</span>
+            <input type="date" id="exp-date-to" style="position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;cursor:pointer;" onchange="updateExpDisplay()">
+          </div>
+        </div>
+      </div>
+      <!-- Quick range pills -->
+      <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;">
+        <button class="filter-pill active" id="exp-range-month" onclick="setExpRange('month',this)">Bulan Ini</button>
+        <button class="filter-pill" id="exp-range-3month" onclick="setExpRange('3month',this)">3 Bulan</button>
+        <button class="filter-pill" id="exp-range-year" onclick="setExpRange('year',this)">Tahun Ini</button>
+        <button class="filter-pill" id="exp-range-all" onclick="setExpRange('all',this)">Semua Data</button>
+      </div>
+    </div>
+
+    <!-- SHEET SELECTION -->
+    <div class="export-section">
+      <div class="export-section-title">Data yang Diekspor</div>
+      <div class="export-sheet-row">
+        <div class="export-sheet-item active" id="exp-sheet-txn" onclick="toggleExpSheet('txn')">
+          <div class="esi-icon" style="background:#eff6ff;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h2M10 15h4"/></svg>
+          </div>
+          <div class="esi-body">
+            <div class="esi-label">Laporan Transaksi</div>
+            <div class="esi-sub" id="exp-txn-count">Memuat...</div>
+          </div>
+          <div class="esi-check"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <div class="export-sheet-item active" id="exp-sheet-sched" onclick="toggleExpSheet('sched')">
+          <div class="esi-icon" style="background:#f0fdf4;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <div class="esi-body">
+            <div class="esi-label">Rundown / Jadwal</div>
+            <div class="esi-sub" id="exp-sched-count">Memuat...</div>
+          </div>
+          <div class="esi-check"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMAT -->
+    <div class="export-section" style="margin-bottom:18px;">
+      <div class="export-section-title">Format File</div>
+      <div class="export-format-row">
+        <div class="export-format-btn active" id="exp-fmt-xlsx" onclick="setExpFormat('xlsx')">
+          <div class="efb-icon">📊</div>
+          <div class="efb-label">Excel (.xlsx)</div>
+          <div class="efb-sub">2 sheet dalam 1 file</div>
+        </div>
+        <div class="export-format-btn" id="exp-fmt-csv" onclick="setExpFormat('csv')">
+          <div class="efb-icon">📄</div>
+          <div class="efb-label">CSV (.csv)</div>
+          <div class="efb-sub">2 file terpisah</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="export-progress" id="export-progress">
+      <div class="export-spinner"></div>
+      <div class="export-progress-text" id="export-progress-text">Menyiapkan data...</div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <button class="btn-primary" onclick="runExport()" id="export-run-btn" style="margin-top:0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      EKSPOR SEKARANG
+    </button>
   </div>
 </div>
 
@@ -2702,14 +2838,259 @@ function deleteRecur(id) {
 }
 
 // ===================== EKSPOR DATA =====================
-function exportCSV() {
-  const header='Tanggal,Nama,Kategori,Tipe,Jumlah\n';
-  const rows=transactions.map(t=>`${t.date},"${t.name}",${t.cat},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.amount}`).join('\n');
-  const blob=new Blob(['\uFEFF'+header+rows],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='fintech_flow_transaksi.csv';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  showToast('Data berhasil diekspor ke CSV!');
+// ===================== EXPORT DATA =====================
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+let _expFormat = 'xlsx';
+let _expSheets = { txn: true, sched: true };
+
+function fmtDateID(ds) {
+  if(!ds) return '-';
+  const d = new Date(ds + 'T00:00:00');
+  return `${d.getDate()} ${MONTH_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function openExportModal() {
+  // Default: current month
+  setExpRange('month', document.getElementById('exp-range-month'));
+  setExpFormat('xlsx');
+  _expSheets = { txn: true, sched: true };
+  document.getElementById('exp-sheet-txn').classList.add('active');
+  document.getElementById('exp-sheet-sched').classList.add('active');
+  updateExpCounts();
+  document.getElementById('export-progress').classList.remove('show');
+  document.getElementById('modal-export').classList.add('open');
+  lockScroll();
+}
+
+function updateExpDisplay() {
+  const from = document.getElementById('exp-date-from').value;
+  const to   = document.getElementById('exp-date-to').value;
+  document.getElementById('exp-from-display').textContent = from ? fmtDateID(from) : '—';
+  document.getElementById('exp-to-display').textContent   = to   ? fmtDateID(to)   : '—';
+  updateExpCounts();
+}
+
+function setExpRange(range, el) {
+  document.querySelectorAll('[id^="exp-range-"]').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
+  let from, to = todayStr;
+
+  if(range === 'month') {
+    from = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
+  } else if(range === '3month') {
+    const d = new Date(today); d.setMonth(d.getMonth()-3);
+    from = d.toISOString().slice(0,10);
+  } else if(range === 'year') {
+    from = `${today.getFullYear()}-01-01`;
+  } else { // all
+    const allDates = [...transactions.map(t=>t.date), ...schedules.map(s=>s.date)].filter(Boolean).sort();
+    from = allDates[0] || todayStr;
+    to   = allDates[allDates.length-1] || todayStr;
+  }
+
+  document.getElementById('exp-date-from').value = from;
+  document.getElementById('exp-date-to').value   = to;
+  updateExpDisplay();
+}
+
+function toggleExpSheet(key) {
+  _expSheets[key] = !_expSheets[key];
+  const el = document.getElementById(`exp-sheet-${key}`);
+  el.classList.toggle('active', _expSheets[key]);
+  updateExpCounts();
+}
+
+function setExpFormat(fmt) {
+  _expFormat = fmt;
+  document.getElementById('exp-fmt-xlsx').classList.toggle('active', fmt==='xlsx');
+  document.getElementById('exp-fmt-csv').classList.toggle('active', fmt==='csv');
+}
+
+function updateExpCounts() {
+  const from = document.getElementById('exp-date-from').value;
+  const to   = document.getElementById('exp-date-to').value;
+  const filtTxn   = transactions.filter(t => (!from || t.date >= from) && (!to || t.date <= to));
+  const filtSched = schedules.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
+  document.getElementById('exp-txn-count').textContent   = `${filtTxn.length} transaksi dalam rentang ini`;
+  document.getElementById('exp-sched-count').textContent = `${filtSched.length} jadwal dalam rentang ini`;
+}
+
+function getExpData() {
+  const from = document.getElementById('exp-date-from').value;
+  const to   = document.getElementById('exp-date-to').value;
+  const filtTxn   = transactions.filter(t => (!from || t.date >= from) && (!to || t.date <= to))
+                                .sort((a,b) => a.date.localeCompare(b.date));
+  const filtSched = schedules.filter(s => (!from || s.date >= from) && (!to || s.date <= to))
+                              .sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
+  return { filtTxn, filtSched, from, to };
+}
+
+// ── Build Transaksi sheet data ──
+function buildTxnSheet(filtTxn, from, to) {
+  const headerInfo = [
+    ['LAPORAN TRANSAKSI - FINTECH FLOW'],
+    [`Periode: ${fmtDateID(from)} s/d ${fmtDateID(to)}`],
+    [`Diekspor: ${fmtDateID(new Date().toISOString().slice(0,10))}`],
+    [],
+    ['No','Tanggal','Nama Transaksi','Kategori','Tipe','Jumlah (Rp)','Status'],
+  ];
+  const rows = filtTxn.map((t, i) => [
+    i+1,
+    fmtDateID(t.date),
+    t.name,
+    t.cat,
+    t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+    t.type === 'income' ? t.amount : -t.amount,
+    t.status || '-',
+  ]);
+
+  // Summary
+  const totalIncome  = filtTxn.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
+  const totalExpense = filtTxn.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0);
+  const summary = [
+    [],
+    ['RINGKASAN'],
+    ['Total Pemasukan', '', '', '', '', totalIncome],
+    ['Total Pengeluaran', '', '', '', '', totalExpense],
+    ['Saldo Bersih', '', '', '', '', totalIncome - totalExpense],
+    ['Jumlah Transaksi', '', '', '', '', filtTxn.length],
+  ];
+
+  return [...headerInfo, ...rows, ...summary];
+}
+
+// ── Build Rundown/Jadwal sheet data ──
+function buildSchedSheet(filtSched, from, to) {
+  const headerInfo = [
+    ['RUNDOWN / JADWAL - FINTECH FLOW'],
+    [`Periode: ${fmtDateID(from)} s/d ${fmtDateID(to)}`],
+    [`Diekspor: ${fmtDateID(new Date().toISOString().slice(0,10))}`],
+    [],
+    ['No','Tanggal','Nama Aktivitas','Kategori','Mulai','Selesai','Lokasi','Deskripsi'],
+  ];
+  const rows = filtSched.map((s, i) => [
+    i+1,
+    fmtDateID(s.date),
+    s.name,
+    s.cat || '-',
+    s.start || '-',
+    s.end   || '-',
+    s.loc   || '-',
+    s.desc  || '-',
+  ]);
+
+  // Group by date summary
+  const byDate = {};
+  filtSched.forEach(s => { byDate[s.date] = (byDate[s.date]||0)+1; });
+  const dateCount = Object.keys(byDate).length;
+
+  const summary = [
+    [],
+    ['RINGKASAN'],
+    ['Total Jadwal', filtSched.length],
+    ['Jumlah Hari Aktif', dateCount],
+  ];
+
+  return [...headerInfo, ...rows, ...summary];
+}
+
+async function runExport() {
+  if(!_expSheets.txn && !_expSheets.sched) {
+    showToast('Pilih minimal 1 data untuk diekspor', true); return;
+  }
+  const prog = document.getElementById('export-progress');
+  const progText = document.getElementById('export-progress-text');
+  const btn = document.getElementById('export-run-btn');
+  prog.classList.add('show');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+
+  const { filtTxn, filtSched, from, to } = getExpData();
+  const fromLabel = from ? from.slice(0,7).replace('-','') : 'all';
+  const toLabel   = to   ? to.slice(0,7).replace('-','')   : 'all';
+  const fname = `fintech_flow_${fromLabel}_${toLabel}`;
+
+  try {
+    await new Promise(r => setTimeout(r, 80)); // let UI update
+
+    if(_expFormat === 'xlsx') {
+      progText.textContent = 'Membuat file Excel...';
+      await new Promise(r => setTimeout(r, 60));
+
+      if(typeof XLSX === 'undefined') {
+        showToast('Library Excel belum dimuat, coba lagi', true);
+        throw new Error('XLSX not loaded');
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      if(_expSheets.txn) {
+        progText.textContent = 'Menulis sheet Transaksi...';
+        await new Promise(r => setTimeout(r, 40));
+        const txnData = buildTxnSheet(filtTxn, from, to);
+        const ws = XLSX.utils.aoa_to_sheet(txnData);
+        // Column widths
+        ws['!cols'] = [{wch:4},{wch:18},{wch:30},{wch:18},{wch:14},{wch:18},{wch:12}];
+        // Merge title row
+        ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:6}},{s:{r:1,c:0},e:{r:1,c:6}},{s:{r:2,c:0},e:{r:2,c:6}}];
+        XLSX.utils.book_append_sheet(wb, ws, 'Laporan Transaksi');
+      }
+
+      if(_expSheets.sched) {
+        progText.textContent = 'Menulis sheet Rundown...';
+        await new Promise(r => setTimeout(r, 40));
+        const schedData = buildSchedSheet(filtSched, from, to);
+        const ws2 = XLSX.utils.aoa_to_sheet(schedData);
+        ws2['!cols'] = [{wch:4},{wch:18},{wch:30},{wch:16},{wch:8},{wch:8},{wch:22},{wch:30}];
+        ws2['!merges'] = [{s:{r:0,c:0},e:{r:0,c:7}},{s:{r:1,c:0},e:{r:1,c:7}},{s:{r:2,c:0},e:{r:2,c:7}}];
+        XLSX.utils.book_append_sheet(wb, ws2, 'Rundown Jadwal');
+      }
+
+      progText.textContent = 'Mengunduh file...';
+      await new Promise(r => setTimeout(r, 40));
+      XLSX.writeFile(wb, fname + '.xlsx');
+      showToast('✅ File Excel berhasil diunduh!');
+
+    } else {
+      // CSV — 2 files
+      if(_expSheets.txn) {
+        progText.textContent = 'Membuat CSV Transaksi...';
+        await new Promise(r => setTimeout(r, 60));
+        const txnData = buildTxnSheet(filtTxn, from, to);
+        const csvTxn = txnData.map(row => row.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+        dlBlob('\uFEFF'+csvTxn, 'text/csv;charset=utf-8;', fname+'_transaksi.csv');
+      }
+      if(_expSheets.sched) {
+        progText.textContent = 'Membuat CSV Rundown...';
+        await new Promise(r => setTimeout(r, 60));
+        const schedData = buildSchedSheet(filtSched, from, to);
+        const csvSched = schedData.map(row => row.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+        dlBlob('﻿'+csvSched, 'text/csv;charset=utf-8;', fname+'_rundown.csv');
+      }
+      showToast('✅ File CSV berhasil diunduh!');
+    }
+
+  } catch(e) {
+    console.error('Export error:', e);
+    showToast('Gagal mengekspor data', true);
+  } finally {
+    prog.classList.remove('show');
+    btn.disabled = false;
+    btn.style.opacity = '';
+    progText.textContent = 'Menyiapkan data...';
+    closeModal('modal-export');
+  }
+}
+
+function dlBlob(content, type, filename) {
+  const blob = new Blob([content], { type });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 
